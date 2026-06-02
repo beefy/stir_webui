@@ -38,9 +38,6 @@ function AppContent() {
         <NavLink to="/history">Message History</NavLink>
         <NavLink to="/blocks">Block History</NavLink>
         <NavLink to="/settings">Settings</NavLink>
-        <span className="navbar-user">
-          {user.email ?? user.uid}
-        </span>
       </nav>
 
       <main className="container">
