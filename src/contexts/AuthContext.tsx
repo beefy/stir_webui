@@ -9,6 +9,7 @@ import {
 import type { User } from "firebase/auth";
 import {
   initFirebase,
+  createAccount,
   loginWithEmail,
   loginWithGoogle,
   signOut as firebaseSignOut,
@@ -26,6 +27,7 @@ interface AuthState {
 
 interface AuthContextValue extends AuthState {
   login: (email: string, password: string) => Promise<void>;
+  signup: (email: string, password: string) => Promise<void>;
   loginWithGoogleSso: () => Promise<void>;
   logout: () => Promise<void>;
   resendVerification: () => Promise<void>;
@@ -112,6 +114,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         : err instanceof Error
           ? err.message
           : "An unexpected error occurred during sign in.";
+      setState((prev) => ({
+        ...prev,
+        loading: false,
+        error: msg,
+      }));
+    }
+  }, []);
+
+  const signup = useCallback(async (email: string, password: string) => {
+    setState((prev) => ({ ...prev, loading: true, error: null }));
+    try {
+      const cred = await createAccount(email, password);
+
+      // Send verification email immediately after signup
+      await sendVerificationEmail();
+
+      // Sign the user out since they need to verify their email first
+      await firebaseSignOut();
+      setState({
+        user: null,
+        loading: false,
+        initialized: true,
+        error:
+          "Account created! A verification email has been sent. Please verify your email before signing in.",
+      });
+    } catch (err: unknown) {
+      const firebaseErr = err as { code?: string };
+      const msg = firebaseErr.code
+        ? translateFirebaseError(firebaseErr.code)
+        : err instanceof Error
+          ? err.message
+          : "An unexpected error occurred during sign up.";
       setState((prev) => ({
         ...prev,
         loading: false,
@@ -210,6 +244,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         ...state,
         login,
+        signup,
         loginWithGoogleSso,
         logout,
         resendVerification,

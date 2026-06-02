@@ -1,23 +1,31 @@
 import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 
+type Mode = "signin" | "signup";
+
 export default function Login() {
-  const { login, loginWithGoogleSso, loading, error, clearError } = useAuth();
+  const { login, signup, loginWithGoogleSso, loading, error, clearError } =
+    useAuth();
+  const [mode, setMode] = useState<Mode>("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleEmailLogin = async (e: React.FormEvent) => {
+  const switchMode = () => {
+    clearError();
+    setMode((prev) => (prev === "signin" ? "signup" : "signin"));
+  };
+
+  const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     clearError();
 
-    if (!email.trim()) {
-      return;
-    }
-    if (!password.trim()) {
-      return;
-    }
+    if (!email.trim() || !password.trim()) return;
 
-    await login(email, password);
+    if (mode === "signin") {
+      await login(email, password);
+    } else {
+      await signup(email, password);
+    }
   };
 
   const handleGoogleLogin = async () => {
@@ -25,21 +33,21 @@ export default function Login() {
     await loginWithGoogleSso();
   };
 
+  const isSignin = mode === "signin";
+
   return (
     <div className="page login-page">
       <div className="card login-card">
-        <h1>Sign In</h1>
+        <h1>{isSignin ? "Sign In" : "Create Account"}</h1>
         <p className="login-subtitle">
-          Sign in to access the messaging dashboard.
+          {isSignin
+            ? "Sign in to access the messaging dashboard."
+            : "Create an account to get started."}
         </p>
 
-        {error && (
-          <div className="alert alert-error">
-            {error}
-          </div>
-        )}
+        {error && <div className="alert alert-error">{error}</div>}
 
-        <form onSubmit={handleEmailLogin} className="login-form">
+        <form onSubmit={handleEmailSubmit} className="login-form">
           <div className="form-group">
             <label htmlFor="loginEmail">Email</label>
             <input
@@ -49,7 +57,7 @@ export default function Login() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
               required
-              autoComplete="email"
+              autoComplete={isSignin ? "email" : "username"}
             />
           </div>
 
@@ -60,16 +68,47 @@ export default function Login() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
+              placeholder={
+                isSignin ? "Enter your password" : "Choose a password (6+ characters)"
+              }
               required
-              autoComplete="current-password"
+              minLength={6}
+              autoComplete={isSignin ? "current-password" : "new-password"}
             />
           </div>
 
-          <button type="submit" disabled={loading} className="btn-primary btn-full">
-            {loading ? "Signing in..." : "Sign In with Email"}
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn-primary btn-full"
+          >
+            {loading
+              ? isSignin
+                ? "Signing in..."
+                : "Creating account..."
+              : isSignin
+                ? "Sign In with Email"
+                : "Create Account"}
           </button>
         </form>
+
+        <p className="login-toggle">
+          {isSignin ? (
+            <>
+              Don't have an account?{" "}
+              <button onClick={switchMode} className="link-btn" disabled={loading}>
+                Sign up
+              </button>
+            </>
+          ) : (
+            <>
+              Already have an account?{" "}
+              <button onClick={switchMode} className="link-btn" disabled={loading}>
+                Sign in
+              </button>
+            </>
+          )}
+        </p>
 
         <div className="login-divider">
           <span>or</span>
@@ -98,7 +137,7 @@ export default function Login() {
               d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
             />
           </svg>
-          {loading ? "Signing in..." : "Sign In with Google"}
+          {loading ? "Please wait..." : "Continue with Google"}
         </button>
       </div>
     </div>

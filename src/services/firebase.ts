@@ -2,6 +2,7 @@ import { initializeApp, type FirebaseApp } from "firebase/app";
 import {
   getAuth,
   signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
   signInWithPopup,
   GoogleAuthProvider,
   deleteUser,
@@ -37,6 +38,14 @@ export async function initFirebase(): Promise<Auth> {
   app = initializeApp(config);
   auth = getAuth(app);
   return auth;
+}
+
+export async function createAccount(
+  email: string,
+  password: string
+): Promise<UserCredential> {
+  const a = await initFirebase();
+  return createUserWithEmailAndPassword(a, email, password);
 }
 
 export async function loginWithEmail(

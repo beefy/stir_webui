@@ -438,6 +438,34 @@ button[type="submit"]:disabled {
   flex-shrink: 0;
 }
 
+/* Toggle between sign in / sign up */
+.login-toggle {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.link-btn:hover:not(:disabled) {
+  color: var(--primary-hover);
+}
+
+.link-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* Divider */
 .login-divider {
   display: flex;
