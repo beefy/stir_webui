@@ -25,6 +25,11 @@ interface AuthState {
   error: string | null;
 }
 
+// Tracks whether we're about to sign the user out after login/signup
+// (e.g., because email is not verified). This prevents the brief flash
+// of the authenticated app before the sign-out completes.
+let isPendingSignOut = false;
+
 interface AuthContextValue extends AuthState {
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string) => Promise<void>;
@@ -52,6 +57,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     initFirebase()
       .then((auth) => {
         unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
+          // During signup or unverified-email login we sign in then immediately
+          // sign out, so ignore the intermediate authenticated state.
+          if (isPendingSignOut) return;
+
           setState({
             user: firebaseUser,
             loading: false,
@@ -82,6 +91,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(async (email: string, password: string) => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
+    // Set the flag before signing in so onAuthStateChanged ignores the
+    // intermediate authenticated state if we need to sign out again.
+    isPendingSignOut = true;
     try {
       const cred = await loginWithEmail(email, password);
 
@@ -91,6 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await sendVerificationEmail();
         // Sign the user out since they can't proceed without verification
         await firebaseSignOut();
+        isPendingSignOut = false;
         setState({
           user: null,
           loading: false,
@@ -101,6 +114,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
+      // Email is verified — allow the login
+      isPendingSignOut = false;
       setState({
         user: cred.user,
         loading: false,
@@ -108,6 +123,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         error: null,
       });
     } catch (err: unknown) {
+      isPendingSignOut = false;
       const firebaseErr = err as { code?: string };
       const msg = firebaseErr.code
         ? translateFirebaseError(firebaseErr.code)
@@ -124,6 +140,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signup = useCallback(async (email: string, password: string) => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
+    isPendingSignOut = true;
     try {
       const cred = await createAccount(email, password);
 
@@ -132,6 +149,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // Sign the user out since they need to verify their email first
       await firebaseSignOut();
+      isPendingSignOut = false;
       setState({
         user: null,
         loading: false,
@@ -140,6 +158,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           "Account created! A verification email has been sent. Please verify your email before signing in.",
       });
     } catch (err: unknown) {
+      isPendingSignOut = false;
       const firebaseErr = err as { code?: string };
       const msg = firebaseErr.code
         ? translateFirebaseError(firebaseErr.code)
