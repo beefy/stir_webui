@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { login, sendMessage } from "../services/api";
+import { useAuth } from "../contexts/AuthContext";
+import { sendMessage } from "../services/api";
 
 export default function SendMessage() {
-  const [userId, setUserId] = useState("");
+  const { user } = useAuth();
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState<{
     type: "success" | "error";
@@ -14,10 +15,6 @@ export default function SendMessage() {
     e.preventDefault();
     setStatus(null);
 
-    if (!userId.trim()) {
-      setStatus({ type: "error", text: "User ID is required." });
-      return;
-    }
     if (!message.trim()) {
       setStatus({ type: "error", text: "Message content is required." });
       return;
@@ -32,11 +29,7 @@ export default function SendMessage() {
 
     setLoading(true);
     try {
-      // Ensure user is registered
-      await login({ user_id: userId });
-      // Send the message
       const res = await sendMessage({
-        send_user_id: userId,
         message_content: message,
       });
       setStatus({ type: "success", text: res.detail });
@@ -52,19 +45,10 @@ export default function SendMessage() {
   return (
     <div className="page">
       <h1>Send a Message</h1>
+      <p className="login-subtitle" style={{ textAlign: "left", marginBottom: "1rem" }}>
+        Signed in as: {user?.email ?? user?.uid}
+      </p>
       <form onSubmit={handleSend} className="card">
-        <div className="form-group">
-          <label htmlFor="userId">Your User ID</label>
-          <input
-            id="userId"
-            type="text"
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-            placeholder="firebase-uid-123"
-            required
-          />
-        </div>
-
         <div className="form-group">
           <label htmlFor="message">Message</label>
           <textarea

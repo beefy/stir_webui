@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
+import { useAuth } from "../contexts/AuthContext";
 import { getMessageHistory, reactToMessage, reportMessage, blockUser } from "../services/api";
 import type { Message } from "../types";
 
 export default function MessageHistory() {
-  const [userId, setUserId] = useState("");
-  const [submittedUserId, setSubmittedUserId] = useState("");
+  const { user } = useAuth();
+  const userId = user?.uid ?? "";
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -14,12 +15,12 @@ export default function MessageHistory() {
   } | null>(null);
 
   const fetchHistory = useCallback(async () => {
-    if (!submittedUserId.trim()) return;
+    if (!userId) return;
     setLoading(true);
     setError(null);
     setActionMsg(null);
     try {
-      const data = await getMessageHistory(submittedUserId);
+      const data = await getMessageHistory();
       setMessages(data.messages);
     } catch (err: unknown) {
       const msg =
@@ -28,16 +29,11 @@ export default function MessageHistory() {
     } finally {
       setLoading(false);
     }
-  }, [submittedUserId]);
+  }, [userId]);
 
   useEffect(() => {
     fetchHistory();
   }, [fetchHistory]);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmittedUserId(userId);
-  };
 
   const handleReact = async (messageId: string, currentReaction: string | null) => {
     setActionMsg(null);
@@ -84,12 +80,8 @@ export default function MessageHistory() {
 
   const handleBlock = async (messageId: string) => {
     setActionMsg(null);
-    if (!submittedUserId.trim()) return;
     try {
-      const res = await blockUser({
-        blocked_by_user_id: submittedUserId,
-        message_id: messageId,
-      });
+      const res = await blockUser({ message_id: messageId });
       setActionMsg({ type: "success", text: res.detail });
     } catch (err: unknown) {
       const msg =
@@ -98,28 +90,14 @@ export default function MessageHistory() {
     }
   };
 
-  const isOwnMessage = (msg: Message) => msg.send_user_id === submittedUserId;
+  const isOwnMessage = (msg: Message) => msg.send_user_id === userId;
 
   return (
     <div className="page">
       <h1>Message History</h1>
-
-      <form onSubmit={handleSubmit} className="card">
-        <div className="form-group">
-          <label htmlFor="historyUserId">Your User ID</label>
-          <input
-            id="historyUserId"
-            type="text"
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-            placeholder="firebase-uid-123"
-            required
-          />
-        </div>
-        <button type="submit" disabled={loading}>
-          {loading ? "Loading..." : "Load History"}
-        </button>
-      </form>
+      <p className="login-subtitle" style={{ textAlign: "left", marginBottom: "1rem" }}>
+        Signed in as: {user?.email ?? userId}
+      </p>
 
       {actionMsg && (
         <div className={`alert alert-${actionMsg.type}`}>{actionMsg.text}</div>
@@ -129,7 +107,7 @@ export default function MessageHistory() {
 
       {loading && <p className="loading-text">Loading messages...</p>}
 
-      {!loading && !error && submittedUserId && messages.length === 0 && (
+      {!loading && !error && messages.length === 0 && (
         <p className="empty-text">No messages found.</p>
       )}
 

@@ -1,20 +1,32 @@
+import { getAuth } from "firebase/auth";
 import type {
   ApiResponse,
   BlockListResponse,
-  BlockUserRequest,
-  LoginRequest,
   MessageHistoryResponse,
   ReactToMessageRequest,
   ReportMessageRequest,
   SendMessageRequest,
-  UnblockUserRequest,
 } from "../types";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
+async function getFirebaseToken(): Promise<string> {
+  const auth = getAuth();
+  if (!auth.currentUser) {
+    throw new Error("Not authenticated");
+  }
+  const token = await auth.currentUser.getIdToken();
+  return token;
+}
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
+  const token = await getFirebaseToken();
+
   const res = await fetch(`${BASE_URL}${path}`, {
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
     ...options,
   });
 
@@ -27,13 +39,6 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   return body as T;
 }
 
-export function login(data: LoginRequest) {
-  return request<ApiResponse>("/login", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
-}
-
 export function sendMessage(data: SendMessageRequest) {
   return request<ApiResponse>("/send_message", {
     method: "POST",
@@ -41,30 +46,28 @@ export function sendMessage(data: SendMessageRequest) {
   });
 }
 
-export function getMessageHistory(userId: string) {
-  return request<MessageHistoryResponse>(
-    `/message_history?user_id=${encodeURIComponent(userId)}`
-  );
+export function getMessageHistory() {
+  return request<MessageHistoryResponse>("/message_history");
 }
 
-export function blockUser(data: BlockUserRequest) {
+export function blockUser(data: { message_id: string }) {
   return request<ApiResponse>("/block_user", {
     method: "POST",
     body: JSON.stringify(data),
   });
 }
 
-export function unblockUser(data: UnblockUserRequest) {
+export function unblockUser(data: { blocked_user_id: string }) {
   return request<ApiResponse>("/unblock_user", {
     method: "POST",
     body: JSON.stringify(data),
   });
 }
 
-export function getBlockList(blockedByUserId: string) {
+export function getBlockList() {
   return request<BlockListResponse>("/block_list", {
     method: "POST",
-    body: JSON.stringify({ blocked_by_user_id: blockedByUserId }),
+    body: JSON.stringify({}),
   });
 }
 

@@ -27,23 +27,8 @@ export interface ApiResponse {
   detail: string;
 }
 
-export interface LoginRequest {
-  user_id: string;
-}
-
 export interface SendMessageRequest {
-  send_user_id: string;
   message_content: string;
-}
-
-export interface BlockUserRequest {
-  blocked_by_user_id: string;
-  message_id: string;
-}
-
-export interface UnblockUserRequest {
-  blocked_by_user_id: string;
-  blocked_user_id: string;
 }
 
 export interface ReactToMessageRequest {

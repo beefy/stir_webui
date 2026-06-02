@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
+import { useAuth } from "../contexts/AuthContext";
 import { getBlockList, unblockUser } from "../services/api";
 import type { BlockedUserEntry } from "../types";
 
 export default function BlockHistory() {
-  const [userId, setUserId] = useState("");
-  const [submittedUserId, setSubmittedUserId] = useState("");
+  const { user } = useAuth();
+  const userId = user?.uid ?? "";
   const [blockedUsers, setBlockedUsers] = useState<BlockedUserEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -14,12 +15,12 @@ export default function BlockHistory() {
   } | null>(null);
 
   const fetchBlockList = useCallback(async () => {
-    if (!submittedUserId.trim()) return;
+    if (!userId) return;
     setLoading(true);
     setError(null);
     setActionMsg(null);
     try {
-      const data = await getBlockList(submittedUserId);
+      const data = await getBlockList();
       setBlockedUsers(data.blocked_users);
     } catch (err: unknown) {
       const msg =
@@ -28,24 +29,16 @@ export default function BlockHistory() {
     } finally {
       setLoading(false);
     }
-  }, [submittedUserId]);
+  }, [userId]);
 
   useEffect(() => {
     fetchBlockList();
   }, [fetchBlockList]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmittedUserId(userId);
-  };
-
   const handleUnblock = async (blockedUserId: string) => {
     setActionMsg(null);
     try {
-      const res = await unblockUser({
-        blocked_by_user_id: submittedUserId,
-        blocked_user_id: blockedUserId,
-      });
+      const res = await unblockUser({ blocked_user_id: blockedUserId });
       setActionMsg({ type: "success", text: res.detail });
       // Remove from local state
       setBlockedUsers((prev) =>
@@ -61,23 +54,9 @@ export default function BlockHistory() {
   return (
     <div className="page">
       <h1>Block History</h1>
-
-      <form onSubmit={handleSubmit} className="card">
-        <div className="form-group">
-          <label htmlFor="blockUserId">Your User ID</label>
-          <input
-            id="blockUserId"
-            type="text"
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-            placeholder="firebase-uid-123"
-            required
-          />
-        </div>
-        <button type="submit" disabled={loading}>
-          {loading ? "Loading..." : "Load Block List"}
-        </button>
-      </form>
+      <p className="login-subtitle" style={{ textAlign: "left", marginBottom: "1rem" }}>
+        Signed in as: {user?.email ?? userId}
+      </p>
 
       {actionMsg && (
         <div className={`alert alert-${actionMsg.type}`}>{actionMsg.text}</div>
@@ -87,7 +66,7 @@ export default function BlockHistory() {
 
       {loading && <p className="loading-text">Loading block list...</p>}
 
-      {!loading && !error && submittedUserId && blockedUsers.length === 0 && (
+      {!loading && !error && blockedUsers.length === 0 && (
         <p className="empty-text">No blocked users.</p>
       )}
 
