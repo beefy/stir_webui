@@ -581,8 +581,8 @@ button[type="submit"]:disabled {
 }
 
 .vote-btn.down.active {
-  color: #6366f1;
-  background: #eef2ff;
+  color: var(--error);
+  background: #fee2e2;
 }
 
 /* Confirm delete */
