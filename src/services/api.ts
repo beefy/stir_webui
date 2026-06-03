@@ -39,6 +39,14 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   return body as T;
 }
 
+/** Register the Firebase user ID with the backend (POST /login). */
+export function loginBackend() {
+  return request<ApiResponse>("/login", {
+    method: "POST",
+    body: JSON.stringify({}),
+  });
+}
+
 export function sendMessage(data: SendMessageRequest) {
   return request<ApiResponse>("/send_message", {
     method: "POST",

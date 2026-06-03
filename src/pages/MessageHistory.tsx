@@ -35,13 +35,10 @@ export default function MessageHistory() {
     fetchHistory();
   }, [fetchHistory]);
 
-  const handleReact = async (messageId: string, currentReaction: string | null) => {
+  const handleReact = async (messageId: string, currentReaction: string | null, target: "up" | "down") => {
     setActionMsg(null);
-    // Cycle: null -> up -> down -> null
-    let next: string | null;
-    if (currentReaction === null) next = "up";
-    else if (currentReaction === "up") next = "down";
-    else next = null;
+    // Toggle: if clicking the same reaction, clear it; otherwise set it
+    const next = currentReaction === target ? null : target;
 
     try {
       await reactToMessage({ message_id: messageId, reaction_content: next });
@@ -50,10 +47,6 @@ export default function MessageHistory() {
           m.message_id === messageId ? { ...m, reaction_type: next } : m
         )
       );
-      setActionMsg({
-        type: "success",
-        text: next === null ? "Reaction cleared" : `Reacted ${next}`,
-      });
     } catch (err: unknown) {
       const msg =
         err instanceof Error ? err.message : "Failed to react";
@@ -135,29 +128,34 @@ export default function MessageHistory() {
                     Seen: {new Date(msg.seen_timestamp).toLocaleString()}
                   </span>
                 )}
-                {msg.reaction_type && (
-                  <span className="meta-item">
-                    Reaction: {msg.reaction_type === "up" ? "👍" : "👎"}
-                  </span>
-                )}
-                {msg.reported && (
-                  <span className="meta-item reported">Reported</span>
-                )}
               </div>
 
               {!isOwnMessage(msg) && (
                 <div className="message-actions">
-                  <button
-                    className="btn-sm"
-                    onClick={() => handleReact(msg.message_id, msg.reaction_type)}
-                    title={`React (current: ${msg.reaction_type ?? "none"})`}
-                  >
-                    {msg.reaction_type === "up"
-                      ? "👍"
-                      : msg.reaction_type === "down"
-                        ? "👎"
-                        : "React"}
-                  </button>
+                  {/* Reddit-style upvote / downvote */}
+                  <div className="vote-group">
+                    <button
+                      className={`vote-btn up ${msg.reaction_type === "up" ? "active" : ""}`}
+                      onClick={() => handleReact(msg.message_id, msg.reaction_type, "up")}
+                      title="Upvote"
+                      aria-label="Upvote"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M8 2l6 6h-4v6H6V8H2l6-6z" />
+                      </svg>
+                    </button>
+                    <button
+                      className={`vote-btn down ${msg.reaction_type === "down" ? "active" : ""}`}
+                      onClick={() => handleReact(msg.message_id, msg.reaction_type, "down")}
+                      title="Downvote"
+                      aria-label="Downvote"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M8 14l-6-6h4V2h4v6h4l-6 6z" />
+                      </svg>
+                    </button>
+                  </div>
+
                   <button
                     className="btn-sm btn-report"
                     onClick={() => handleReport(msg.message_id)}
@@ -178,14 +176,14 @@ export default function MessageHistory() {
 
               {isOwnMessage(msg) && (
                 <div className="message-actions">
-                  <span className="meta-item">
-                    {msg.reaction_type
-                      ? `Recipient reacted: ${msg.reaction_type === "up" ? "👍" : "👎"}`
-                      : "No reaction yet"}
-                  </span>
-                  <span className="meta-item">
-                    {msg.reported ? "Message was reported" : "Not reported"}
-                  </span>
+                  {msg.reaction_type && (
+                    <span className="meta-item">
+                      Recipient reacted: {msg.reaction_type === "up" ? "👍" : "👎"}
+                    </span>
+                  )}
+                  {msg.reported && (
+                    <span className="meta-item reported">Message was reported</span>
+                  )}
                 </div>
               )}
             </div>

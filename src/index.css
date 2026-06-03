@@ -544,6 +544,47 @@ button[type="submit"]:disabled {
   cursor: not-allowed;
 }
 
+/* Vote buttons (Reddit-style upvote / downvote) */
+.vote-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.vote-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #f9fafb;
+  border: none;
+  padding: 0.35rem 0.5rem;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: background 0.15s, color 0.15s;
+  line-height: 1;
+}
+
+.vote-btn + .vote-btn {
+  border-left: 1px solid var(--border);
+}
+
+.vote-btn:hover {
+  background: #eef2ff;
+}
+
+.vote-btn.up.active {
+  color: #f97316;
+  background: #fff7ed;
+}
+
+.vote-btn.down.active {
+  color: #6366f1;
+  background: #eef2ff;
+}
+
 /* Confirm delete */
 .confirm-delete {
   margin-top: 0.5rem;

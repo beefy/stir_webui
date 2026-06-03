@@ -17,6 +17,7 @@ import {
   deleteFirebaseAccount,
 } from "../services/firebase";
 import { translateFirebaseError } from "../services/firebaseErrors";
+import { loginBackend } from "../services/api";
 
 interface AuthState {
   user: User | null;
@@ -122,6 +123,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         initialized: true,
         error: null,
       });
+
+      // Register the Firebase user ID with the backend
+      loginBackend().catch(() => {
+        // Non-critical — the backend will pick up the user on first real request
+      });
     } catch (err: unknown) {
       isPendingSignOut = false;
       const firebaseErr = err as { code?: string };
@@ -182,6 +188,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         loading: false,
         initialized: true,
         error: null,
+      });
+
+      // Register the Firebase user ID with the backend
+      loginBackend().catch(() => {
+        // Non-critical — the backend will pick up the user on first real request
       });
     } catch (err: unknown) {
       const firebaseErr = err as { code?: string };
