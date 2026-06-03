@@ -3,6 +3,7 @@ import type {
   ApiResponse,
   BlockListResponse,
   MessageHistoryResponse,
+  KarmaResponse,
   ReactToMessageRequest,
   ReportMessageRequest,
   SendMessageRequest,
@@ -110,4 +111,9 @@ export function reportMessage(data: ReportMessageRequest) {
 /** Get the number of unread messages for the authenticated user (GET /unread_messages). */
 export function getUnreadCount() {
   return request<UnreadCountResponse>("/unread_messages");
+}
+
+/** Get the karma score for the authenticated user (GET /karma_count). */
+export function getKarmaCount() {
+  return request<KarmaResponse>("/karma_count");
 }

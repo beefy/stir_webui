@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
-import { sendMessage } from "../services/api";
+import { sendMessage, getKarmaCount } from "../services/api";
 
 export default function SendMessage() {
   const { user } = useAuth();
@@ -10,6 +10,22 @@ export default function SendMessage() {
     text: string;
   } | null>(null);
   const [loading, setLoading] = useState(false);
+  const [karma, setKarma] = useState<number | null>(null);
+
+  // Fetch karma count on mount — non-blocking, errors are silently ignored
+  useEffect(() => {
+    let cancelled = false;
+    getKarmaCount()
+      .then((data) => {
+        if (!cancelled) setKarma(data.karma);
+      })
+      .catch(() => {
+        // Silently ignore — karma just won't show
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,6 +64,16 @@ export default function SendMessage() {
       <p className="login-subtitle" style={{ textAlign: "left", marginBottom: "1rem" }}>
         Signed in as: {user?.email ?? user?.uid}
       </p>
+
+      {karma !== null && (
+        <div className="karma-display">
+          Karma:{" "}
+          <span className={`karma-value ${karma > 0 ? "positive" : karma < 0 ? "negative" : ""}`}>
+            {karma > 0 ? `+${karma}` : karma}
+          </span>
+        </div>
+      )}
+
       <form onSubmit={handleSend} className="card">
         <div className="form-group">
           <label htmlFor="message">Message</label>

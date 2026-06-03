@@ -52,3 +52,7 @@ export interface ReportMessageRequest {
 export interface UnreadCountResponse {
   unread_count: number;
 }
+
+export interface KarmaResponse {
+  karma: number;
+}

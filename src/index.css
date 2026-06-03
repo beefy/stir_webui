@@ -782,6 +782,26 @@ button[type="submit"]:disabled {
   background: var(--vote-down-bg);
 }
 
+/* Karma display */
+.karma-display {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text-muted);
+}
+
+.karma-value {
+  font-weight: 700;
+}
+
+.karma-value.positive {
+  color: var(--success);
+}
+
+.karma-value.negative {
+  color: var(--error);
+}
+
 /* Pagination */
 .pagination {
   display: flex;
