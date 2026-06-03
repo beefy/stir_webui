@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, NavLink, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, NavLink, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import SendMessage from "./pages/SendMessage";
 import MessageHistory from "./pages/MessageHistory";
@@ -8,6 +8,7 @@ import Settings from "./pages/Settings";
 
 function AppContent() {
   const { user, loading, initialized } = useAuth();
+  const location = useLocation();
 
   // Show a loading spinner while Firebase initializes
   if (!initialized || loading) {
@@ -26,6 +27,11 @@ function AppContent() {
         <Route path="*" element={<Login />} />
       </Routes>
     );
+  }
+
+  // After login, always redirect to Send Message (home)
+  if (location.pathname !== "/") {
+    return <Navigate to="/" replace />;
   }
 
   // Authenticated — show the main app
