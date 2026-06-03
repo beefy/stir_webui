@@ -6,13 +6,20 @@ export default function Settings() {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleteInProgress, setDeleteInProgress] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deletePassword, setDeletePassword] = useState("");
+
+  // Determine the sign-in provider
+  const providerId = user?.providerData[0]?.providerId;
+  const isEmailPassword = providerId === "password";
 
   const handleDeleteAccount = async () => {
     clearError();
     setDeleteError(null);
     setDeleteInProgress(true);
     try {
-      await deleteAccount();
+      // For email/password users, pass the password for re-authentication.
+      // For Google SSO users, no password is needed (popup re-auth).
+      await deleteAccount(isEmailPassword ? deletePassword : undefined);
       // AuthContext will handle state change; user will be redirected to login
     } catch (err: unknown) {
       const msg =
@@ -21,6 +28,7 @@ export default function Settings() {
     } finally {
       setDeleteInProgress(false);
       setConfirmDelete(false);
+      setDeletePassword("");
     }
   };
 
@@ -64,7 +72,7 @@ export default function Settings() {
       <div className="card settings-danger">
         <h2>Delete Account</h2>
         <p className="settings-description">
-          Permanently delete your account and all associated data. This action
+          Permanently delete your account and all personal data. This action
           cannot be undone.
         </p>
 
@@ -80,16 +88,36 @@ export default function Settings() {
             <p className="confirm-delete-warning">
               Are you sure? This will permanently delete your account.
             </p>
+
+            {isEmailPassword && (
+              <div className="form-group">
+                <label htmlFor="delete-password">
+                  Enter your password to confirm:
+                </label>
+                <input
+                  id="delete-password"
+                  type="password"
+                  value={deletePassword}
+                  onChange={(e) => setDeletePassword(e.target.value)}
+                  placeholder="Your password"
+                  disabled={deleteInProgress}
+                />
+              </div>
+            )}
+
             <div className="confirm-delete-actions">
               <button
                 onClick={handleDeleteAccount}
-                disabled={deleteInProgress}
+                disabled={deleteInProgress || (isEmailPassword && !deletePassword)}
                 className="btn-danger"
               >
                 {deleteInProgress ? "Deleting..." : "Yes, Delete My Account"}
               </button>
               <button
-                onClick={() => setConfirmDelete(false)}
+                onClick={() => {
+                  setConfirmDelete(false);
+                  setDeletePassword("");
+                }}
                 disabled={deleteInProgress}
                 className="btn-cancel"
               >

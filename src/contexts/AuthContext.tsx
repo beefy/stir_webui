@@ -14,7 +14,7 @@ import {
   loginWithGoogle,
   signOut as firebaseSignOut,
   sendVerificationEmail,
-  deleteFirebaseAccount,
+  reauthenticateAndDeleteAccount,
 } from "../services/firebase";
 import { translateFirebaseError } from "../services/firebaseErrors";
 import { loginBackend } from "../services/api";
@@ -37,7 +37,7 @@ interface AuthContextValue extends AuthState {
   loginWithGoogleSso: () => Promise<void>;
   logout: () => Promise<void>;
   resendVerification: () => Promise<void>;
-  deleteAccount: () => Promise<void>;
+  deleteAccount: (password?: string) => Promise<void>;
   clearError: () => void;
 }
 
@@ -244,10 +244,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const deleteAccount = useCallback(async () => {
+  const deleteAccount = useCallback(async (password?: string) => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
     try {
-      await deleteFirebaseAccount();
+      await reauthenticateAndDeleteAccount(password);
       setState({
         user: null,
         loading: false,

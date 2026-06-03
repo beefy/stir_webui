@@ -7,8 +7,11 @@ import {
   GoogleAuthProvider,
   deleteUser,
   sendEmailVerification,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
   type UserCredential,
   type Auth,
+  type AuthCredential,
 } from "firebase/auth";
 
 const AUTH_BASE_URL =
@@ -69,11 +72,45 @@ export async function sendVerificationEmail(): Promise<void> {
   }
 }
 
-export async function deleteFirebaseAccount(): Promise<void> {
+/**
+ * Re-authenticate the user (required for sensitive operations like account
+ * deletion) and then delete the account.
+ *
+ * For email/password users the caller must provide the current password.
+ * For Google SSO users a new popup sign-in is triggered.
+ */
+export async function reauthenticateAndDeleteAccount(
+  password?: string
+): Promise<void> {
   const a = await initFirebase();
-  if (a.currentUser) {
-    await deleteUser(a.currentUser);
+  const user = a.currentUser;
+  if (!user) throw new Error("No user is signed in.");
+
+  // Determine the sign-in provider
+  const providerId = user.providerData[0]?.providerId;
+
+  if (providerId === "password") {
+    if (!password) {
+      throw new Error("Password is required to re-authenticate.");
+    }
+    const cred = EmailAuthProvider.credential(
+      user.email!,
+      password
+    );
+    await reauthenticateWithCredential(user, cred);
+  } else if (providerId === "google.com") {
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(a, provider);
+    // Extract the credential from the popup result
+    const credential = GoogleAuthProvider.credentialFromResult(result);
+    if (!credential) {
+      throw new Error("Failed to obtain Google credential for re-authentication.");
+    }
+    await reauthenticateWithCredential(user, credential);
   }
+
+  // Now delete the account
+  await deleteUser(user);
 }
 
 export async function signOut(): Promise<void> {
