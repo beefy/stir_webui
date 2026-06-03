@@ -141,7 +141,7 @@ export default function MessageHistory() {
                       aria-label="Upvote"
                     >
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                        <path d="M8 2l6 6h-4v6H6V8H2l6-6z" />
+                        <path d="M8 3 L14 11 L2 11 Z" />
                       </svg>
                     </button>
                     <button
@@ -151,7 +151,7 @@ export default function MessageHistory() {
                       aria-label="Downvote"
                     >
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                        <path d="M8 14l-6-6h4V2h4v6h4l-6 6z" />
+                        <path d="M8 13 L2 5 L14 5 Z" />
                       </svg>
                     </button>
                   </div>
