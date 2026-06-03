@@ -122,13 +122,19 @@ export default function MessageHistory() {
 
               <p className="message-content">{msg.message}</p>
 
-              <div className="message-meta">
-                {msg.seen_timestamp && (
-                  <span className="meta-item">
-                    Seen: {new Date(msg.seen_timestamp).toLocaleString()}
-                  </span>
-                )}
-              </div>
+              {isOwnMessage(msg) && (
+                <div className="message-meta">
+                  {msg.seen_timestamp ? (
+                    <span className="meta-item seen-badge">
+                      ✓ Seen {new Date(msg.seen_timestamp).toLocaleString()}
+                    </span>
+                  ) : (
+                    <span className="meta-item unseen-badge">
+                      ○ Not yet seen
+                    </span>
+                  )}
+                </div>
+              )}
 
               {!isOwnMessage(msg) && (
                 <div className="message-actions">

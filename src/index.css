@@ -278,6 +278,16 @@ button[type="submit"]:disabled {
   font-weight: 600;
 }
 
+.seen-badge {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.unseen-badge {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
 .message-actions {
   display: flex;
   gap: 0.5rem;
