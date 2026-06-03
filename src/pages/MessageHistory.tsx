@@ -140,9 +140,7 @@ export default function MessageHistory() {
                       title="Upvote"
                       aria-label="Upvote"
                     >
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                        <path d="M8 3 L14 11 L2 11 Z" />
-                      </svg>
+                      ▲
                     </button>
                     <button
                       className={`vote-btn down ${msg.reaction_type === "down" ? "active" : ""}`}
@@ -150,9 +148,7 @@ export default function MessageHistory() {
                       title="Downvote"
                       aria-label="Downvote"
                     >
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                        <path d="M8 13 L2 5 L14 5 Z" />
-                      </svg>
+                      ▼
                     </button>
                   </div>
 
