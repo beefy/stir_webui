@@ -143,20 +143,6 @@ export default function Login() {
                 />
               </div>
 
-              {isSignin && (
-                <div style={{ textAlign: "right", marginBottom: "0.75rem" }}>
-                  <button
-                    type="button"
-                    onClick={() => switchMode("forgot")}
-                    className="link-btn"
-                    disabled={loading}
-                    style={{ fontSize: "0.85rem" }}
-                  >
-                    Forgot password?
-                  </button>
-                </div>
-              )}
-
               <button
                 type="submit"
                 disabled={loading}
@@ -179,6 +165,13 @@ export default function Login() {
                   <button onClick={() => switchMode("signup")} className="link-btn" disabled={loading}>
                     Sign up
                   </button>
+                  <br />
+                  <span style={{ fontSize: "0.85rem" }}>
+                    Forgot password?{" "}
+                    <button onClick={() => switchMode("forgot")} className="link-btn" disabled={loading}>
+                      Send reset link
+                    </button>
+                  </span>
                 </>
               ) : (
                 <>
