@@ -47,6 +47,7 @@ export default function Login() {
 
   return (
     <div className="page login-page">
+      <h1 className="login-hero">Message A Stranger Today</h1>
       <div className="card login-card">
         {isForgot ? (
           <>
