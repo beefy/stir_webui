@@ -5,6 +5,8 @@ import MessageHistory from "./pages/MessageHistory";
 import BlockHistory from "./pages/BlockHistory";
 import Login from "./pages/Login";
 import Settings from "./pages/Settings";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
 
 function AppContent() {
   const { user, loading, initialized } = useAuth();
@@ -19,10 +21,12 @@ function AppContent() {
     );
   }
 
-  // If not authenticated, show the login page
+  // If not authenticated, show the login page (or legal pages)
   if (!user) {
     return (
       <Routes>
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsOfService />} />
         <Route path="*" element={<Login />} />
       </Routes>
     );

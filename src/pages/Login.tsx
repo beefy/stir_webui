@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 type Mode = "signin" | "signup" | "forgot";
@@ -213,6 +214,12 @@ export default function Login() {
               </svg>
               {loading ? "Please wait..." : "Continue with Google"}
             </button>
+
+            <p className="login-legal">
+              <Link to="/privacy">Privacy Policy</Link>
+              {" · "}
+              <Link to="/terms">Terms of Service</Link>
+            </p>
           </>
         )}
       </div>
