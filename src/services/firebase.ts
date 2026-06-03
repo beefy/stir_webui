@@ -8,6 +8,7 @@ import {
   GoogleAuthProvider,
   deleteUser,
   sendEmailVerification,
+  sendPasswordResetEmail,
   reauthenticateWithCredential,
   EmailAuthProvider,
   type UserCredential,
@@ -115,6 +116,11 @@ export async function reauthenticateAndDeleteAccount(
 
   // Now delete the Firebase account
   await deleteUser(user);
+}
+
+export async function resetPassword(email: string): Promise<void> {
+  const a = await initFirebase();
+  await sendPasswordResetEmail(a, email);
 }
 
 export async function signOut(): Promise<void> {

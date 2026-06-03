@@ -15,6 +15,7 @@ import {
   signOut as firebaseSignOut,
   sendVerificationEmail,
   reauthenticateAndDeleteAccount,
+  resetPassword as firebaseResetPassword,
 } from "../services/firebase";
 import { translateFirebaseError } from "../services/firebaseErrors";
 import { loginBackend } from "../services/api";
@@ -38,6 +39,7 @@ interface AuthContextValue extends AuthState {
   logout: () => Promise<void>;
   resendVerification: () => Promise<void>;
   deleteAccount: (password?: string) => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
   clearError: () => void;
 }
 
@@ -244,6 +246,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const resetPassword = useCallback(async (email: string) => {
+    setState((prev) => ({ ...prev, loading: true, error: null }));
+    try {
+      await firebaseResetPassword(email);
+      setState((prev) => ({
+        ...prev,
+        loading: false,
+        error: null,
+      }));
+    } catch (err: unknown) {
+      const firebaseErr = err as { code?: string };
+      const msg = firebaseErr.code
+        ? translateFirebaseError(firebaseErr.code)
+        : err instanceof Error
+          ? err.message
+          : "Failed to send password reset email.";
+      setState((prev) => ({
+        ...prev,
+        loading: false,
+        error: msg,
+      }));
+    }
+  }, []);
+
   const deleteAccount = useCallback(async (password?: string) => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
     try {
@@ -279,6 +305,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logout,
         resendVerification,
         deleteAccount,
+        resetPassword,
         clearError,
       }}
     >
