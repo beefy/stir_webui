@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
+import { useLocale } from "../contexts/LocaleContext";
+import { localeNames, type Locale } from "../i18n";
 
 export default function Settings() {
   const { user, deleteAccount, logout, loading, error, clearError } = useAuth();
   const { theme, setTheme } = useTheme();
+  const { translations: tr, locale, setLocale } = useLocale();
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleteInProgress, setDeleteInProgress] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -36,31 +39,31 @@ export default function Settings() {
 
   return (
     <div className="page">
-      <h1>Settings</h1>
+      <h1>{tr.settingsTitle}</h1>
 
       {error && <div className="alert alert-error">{error}</div>}
       {deleteError && <div className="alert alert-error">{deleteError}</div>}
 
       <div className="card">
-        <h2>Account</h2>
+        <h2>{tr.account}</h2>
         <div className="settings-info">
           <p>
-            <strong>Email:</strong> {user?.email ?? "N/A"}
+            <strong>{tr.emailLabel}</strong> {user?.email ?? "N/A"}
           </p>
           <p>
-            <strong>User ID:</strong> {user?.uid ?? "N/A"}
+            <strong>{tr.userIdLabel}</strong> {user?.uid ?? "N/A"}
           </p>
           <p>
-            <strong>Email Verified:</strong>{" "}
-            {user?.emailVerified ? "Yes" : "No"}
+            <strong>{tr.emailVerified}</strong>{" "}
+            {user?.emailVerified ? tr.yes : tr.no}
           </p>
         </div>
       </div>
 
       <div className="card">
-        <h2>Theme</h2>
+        <h2>{tr.theme}</h2>
         <p className="settings-description">
-          Choose your preferred color scheme.
+          {tr.themeDescription}
         </p>
         <div className="theme-options">
           <label className={`theme-option ${theme === "system" ? "active" : ""}`}>
@@ -71,7 +74,7 @@ export default function Settings() {
               checked={theme === "system"}
               onChange={() => setTheme("system")}
             />
-            <span className="theme-option-label">System</span>
+            <span className="theme-option-label">{tr.system}</span>
           </label>
           <label className={`theme-option ${theme === "light" ? "active" : ""}`}>
             <input
@@ -81,7 +84,7 @@ export default function Settings() {
               checked={theme === "light"}
               onChange={() => setTheme("light")}
             />
-            <span className="theme-option-label">Light</span>
+            <span className="theme-option-label">{tr.light}</span>
           </label>
           <label className={`theme-option ${theme === "dark" ? "active" : ""}`}>
             <input
@@ -91,30 +94,50 @@ export default function Settings() {
               checked={theme === "dark"}
               onChange={() => setTheme("dark")}
             />
-            <span className="theme-option-label">Dark</span>
+            <span className="theme-option-label">{tr.dark}</span>
           </label>
         </div>
       </div>
 
       <div className="card">
-        <h2>Sign Out</h2>
+        <h2>{tr.language}</h2>
         <p className="settings-description">
-          Sign out of your account. You will be redirected to the login page.
+          {tr.languageDescription}
+        </p>
+        <div className="theme-options">
+          {(Object.keys(localeNames) as Locale[]).map((loc) => (
+            <label key={loc} className={`theme-option ${locale === loc ? "active" : ""}`}>
+              <input
+                type="radio"
+                name="language"
+                value={loc}
+                checked={locale === loc}
+                onChange={() => setLocale(loc)}
+              />
+              <span className="theme-option-label">{localeNames[loc]}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <div className="card">
+        <h2>{tr.signOut}</h2>
+        <p className="settings-description">
+          {tr.signOutDescription}
         </p>
         <button
           onClick={logout}
           disabled={loading}
           className="btn-danger"
         >
-          {loading ? "Signing out..." : "Sign Out"}
+          {loading ? tr.signingOut : tr.signOutButton}
         </button>
       </div>
 
       <div className="card settings-danger">
-        <h2>Delete Account</h2>
+        <h2>{tr.deleteAccount}</h2>
         <p className="settings-description">
-          Permanently delete your account and all associated data. This action
-          cannot be undone.
+          {tr.deleteAccountDescription}
         </p>
 
         {!confirmDelete ? (
@@ -122,25 +145,25 @@ export default function Settings() {
             onClick={() => setConfirmDelete(true)}
             className="btn-danger"
           >
-            Delete My Account
+            {tr.deleteMyAccount}
           </button>
         ) : (
           <div className="confirm-delete">
             <p className="confirm-delete-warning">
-              Are you sure? This will permanently delete your account.
+              {tr.confirmDelete}
             </p>
 
             {isEmailPassword && (
               <div className="form-group">
                 <label htmlFor="delete-password">
-                  Enter your password to confirm:
+                  {tr.enterPasswordConfirm}
                 </label>
                 <input
                   id="delete-password"
                   type="password"
                   value={deletePassword}
                   onChange={(e) => setDeletePassword(e.target.value)}
-                  placeholder="Your password"
+                  placeholder={tr.yourPassword}
                   disabled={deleteInProgress}
                 />
               </div>
@@ -152,7 +175,7 @@ export default function Settings() {
                 disabled={deleteInProgress || (isEmailPassword && !deletePassword)}
                 className="btn-danger"
               >
-                {deleteInProgress ? "Deleting..." : "Yes, Delete My Account"}
+                {deleteInProgress ? tr.deleting : tr.yesDelete}
               </button>
               <button
                 onClick={() => {
@@ -162,7 +185,7 @@ export default function Settings() {
                 disabled={deleteInProgress}
                 className="btn-cancel"
               >
-                Cancel
+                {tr.cancel}
               </button>
             </div>
           </div>

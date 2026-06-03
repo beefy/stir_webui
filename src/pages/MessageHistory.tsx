@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { useLocale } from "../contexts/LocaleContext";
 import { getMessageHistory, reactToMessage, reportMessage, blockUser } from "../services/api";
 import { formatTime } from "../utils/formatTime";
 import type { Message, Pagination } from "../types";
@@ -8,6 +9,7 @@ const PAGE_SIZE = 20;
 
 export default function MessageHistory() {
   const { user } = useAuth();
+  const { translations: tr } = useLocale();
   const userId = user?.uid ?? "";
   const [messages, setMessages] = useState<Message[]>([]);
   const [pagination, setPagination] = useState<Pagination | null>(null);
@@ -68,7 +70,7 @@ export default function MessageHistory() {
           m.message_id === messageId ? { ...m, reported: true } : m
         )
       );
-      setActionMsg({ type: "success", text: "Message reported" });
+      setActionMsg({ type: "success", text: tr.messageReportedSuccess });
     } catch (err: unknown) {
       const msg =
         err instanceof Error ? err.message : "Failed to report";
@@ -94,9 +96,9 @@ export default function MessageHistory() {
 
   return (
     <div className="page">
-      <h1>Message History</h1>
+      <h1>{tr.messageHistoryTitle}</h1>
       <p className="login-subtitle" style={{ textAlign: "left", marginBottom: "1rem" }}>
-        Signed in as: {user?.email ?? userId}
+        {tr.signedInAs.replace("{email}", user?.email ?? userId)}
       </p>
 
       {actionMsg && (
@@ -105,14 +107,14 @@ export default function MessageHistory() {
 
       {error && <div className="alert alert-error">{error}</div>}
 
-      {loading && <p className="loading-text">Loading messages...</p>}
+      {loading && <p className="loading-text">{tr.loading}</p>}
 
       {!loading && !error && messages.length === 0 && page === 1 && (
-        <p className="empty-text">No messages found.</p>
+        <p className="empty-text">{tr.noMessages}</p>
       )}
 
       {!loading && !error && messages.length === 0 && page > 1 && (
-        <p className="empty-text">No more messages.</p>
+        <p className="empty-text">{tr.noMoreMessages}</p>
       )}
 
       {messages.length > 0 && (
@@ -124,7 +126,7 @@ export default function MessageHistory() {
             >
               <div className="message-header">
                 <span className="message-direction">
-                  {isOwnMessage(msg) ? "You → Anon" : "Anon → You"}
+                  {isOwnMessage(msg) ? tr.youArrow : tr.anonArrow}
                 </span>
                 <span className="message-timestamp">
                   {formatTime(msg.sent_timestamp)}
@@ -136,7 +138,7 @@ export default function MessageHistory() {
               {msg.seen_timestamp && (
                 <div className="message-meta">
                   <span className="meta-item seen-badge">
-                    ✓ Seen {formatTime(msg.seen_timestamp)}
+                    {tr.seen.replace("{time}", formatTime(msg.seen_timestamp))}
                   </span>
                 </div>
               )}
@@ -147,16 +149,16 @@ export default function MessageHistory() {
                     <button
                       className={`vote-btn up ${msg.reaction_type === "up" ? "active" : ""}`}
                       onClick={() => handleReact(msg.message_id, msg.reaction_type, "up")}
-                      title="Upvote"
-                      aria-label="Upvote"
+                      title={tr.upvote}
+                      aria-label={tr.upvote}
                     >
                       ▲
                     </button>
                     <button
                       className={`vote-btn down ${msg.reaction_type === "down" ? "active" : ""}`}
                       onClick={() => handleReact(msg.message_id, msg.reaction_type, "down")}
-                      title="Downvote"
-                      aria-label="Downvote"
+                      title={tr.downvote}
+                      aria-label={tr.downvote}
                     >
                       ▼
                     </button>
@@ -166,16 +168,16 @@ export default function MessageHistory() {
                     className="btn-sm btn-report"
                     onClick={() => handleReport(msg.message_id)}
                     disabled={msg.reported}
-                    title={msg.reported ? "Already reported" : "Report message"}
+                    title={msg.reported ? tr.alreadyReported : tr.blockSender}
                   >
-                    {msg.reported ? "Reported" : "Report"}
+                    {msg.reported ? tr.reported : tr.report}
                   </button>
                   <button
                     className="btn-sm btn-block"
                     onClick={() => handleBlock(msg.message_id)}
-                    title="Block sender"
+                    title={tr.blockSender}
                   >
-                    Block
+                    {tr.block}
                   </button>
                 </div>
               )}
@@ -184,11 +186,14 @@ export default function MessageHistory() {
                 <div className="message-actions">
                   {msg.reaction_type && (
                     <span className="meta-item">
-                      Recipient reacted: {msg.reaction_type === "up" ? "👍" : "👎"}
+                      {tr.recipientReacted.replace(
+                        "{reaction}",
+                        msg.reaction_type === "up" ? "👍" : "👎"
+                      )}
                     </span>
                   )}
                   {msg.reported && (
-                    <span className="meta-item reported">Message was reported</span>
+                    <span className="meta-item reported">{tr.messageReported}</span>
                   )}
                 </div>
               )}
@@ -204,17 +209,17 @@ export default function MessageHistory() {
             disabled={page <= 1 || loading}
             onClick={() => setPage((p) => p - 1)}
           >
-            ← Prev
+            {tr.prevPage}
           </button>
           <span className="pagination-info">
-            Page {page} of {totalPages}
+            {tr.pageOf.replace("{page}", String(page)).replace("{total}", String(totalPages))}
           </span>
           <button
             className="btn-sm"
             disabled={page >= totalPages || loading}
             onClick={() => setPage((p) => p + 1)}
           >
-            Next →
+            {tr.nextPage}
           </button>
         </div>
       )}

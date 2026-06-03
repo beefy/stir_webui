@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { useLocale } from "../contexts/LocaleContext";
 
 type Mode = "signin" | "signup" | "forgot";
 
 export default function Login() {
   const { login, signup, loginWithGoogleSso, resetPassword, loading, error, clearError } =
     useAuth();
+  const { translations: tr } = useLocale();
   const [mode, setMode] = useState<Mode>("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -48,13 +50,13 @@ export default function Login() {
 
   return (
     <div className="page login-page">
-      <h1 className="login-hero">Message A Stranger Today</h1>
+      <h1 className="login-hero">{tr.loginHero}</h1>
       <div className="card login-card">
         {isForgot ? (
           <>
-            <h1>Reset Password</h1>
+            <h1>{tr.resetPassword}</h1>
             <p className="login-subtitle">
-              Enter your email address and we'll send you a link to reset your password.
+              {tr.resetPasswordSubtitle}
             </p>
 
             {error && <div className="alert alert-error">{error}</div>}
@@ -62,25 +64,25 @@ export default function Login() {
             {resetSent ? (
               <>
                 <div className="alert alert-success">
-                  Password reset email sent! Check your inbox (and spam folder) for the link.
+                  {tr.resetSent}
                 </div>
                 <button
                   onClick={() => switchMode("signin")}
                   className="btn-primary btn-full"
                 >
-                  Back to Sign In
+                  {tr.backToSignIn}
                 </button>
               </>
             ) : (
               <form onSubmit={handleEmailSubmit} className="login-form">
                 <div className="form-group">
-                  <label htmlFor="resetEmail">Email</label>
+                  <label htmlFor="resetEmail">{tr.email}</label>
                   <input
                     id="resetEmail"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@example.com"
+                    placeholder={tr.emailPlaceholder}
                     required
                     autoComplete="email"
                   />
@@ -91,7 +93,7 @@ export default function Login() {
                   disabled={loading}
                   className="btn-primary btn-full"
                 >
-                  {loading ? "Sending..." : "Send Reset Link"}
+                  {loading ? tr.sendingReset : tr.sendResetLinkButton}
                 </button>
               </form>
             )}
@@ -99,45 +101,43 @@ export default function Login() {
             {!resetSent && (
               <p className="login-toggle">
                 <button onClick={() => switchMode("signin")} className="link-btn" disabled={loading}>
-                  Back to Sign In
+                  {tr.backToSignIn}
                 </button>
               </p>
             )}
           </>
         ) : (
           <>
-            <h1>{isSignin ? "Sign In" : "Create Account"}</h1>
+            <h1>{isSignin ? tr.signIn : tr.createAccount}</h1>
             <p className="login-subtitle">
-              {isSignin
-                ? "Sign in to access the messaging dashboard."
-                : "Create an account to get started."}
+              {isSignin ? tr.signInSubtitle : tr.createAccountSubtitle}
             </p>
 
             {error && <div className="alert alert-error">{error}</div>}
 
             <form onSubmit={handleEmailSubmit} className="login-form">
               <div className="form-group">
-                <label htmlFor="loginEmail">Email</label>
+                <label htmlFor="loginEmail">{tr.email}</label>
                 <input
                   id="loginEmail"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
+                  placeholder={tr.emailPlaceholder}
                   required
                   autoComplete={isSignin ? "email" : "username"}
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="loginPassword">Password</label>
+                <label htmlFor="loginPassword">{tr.password}</label>
                 <input
                   id="loginPassword"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder={
-                    isSignin ? "Enter your password" : "Choose a password (6+ characters)"
+                    isSignin ? tr.passwordPlaceholder : tr.choosePassword
                   }
                   required
                   minLength={6}
@@ -152,41 +152,41 @@ export default function Login() {
               >
                 {loading
                   ? isSignin
-                    ? "Signing in..."
-                    : "Creating account..."
+                    ? tr.signingIn
+                    : tr.creatingAccount
                   : isSignin
-                    ? "Sign In with Email"
-                    : "Create Account"}
+                    ? tr.signInWithEmail
+                    : tr.createAccountButton}
               </button>
             </form>
 
             <p className="login-toggle">
               {isSignin ? (
                 <>
-                  Don't have an account?{" "}
+                  {tr.dontHaveAccount}{" "}
                   <button onClick={() => switchMode("signup")} className="link-btn" disabled={loading}>
-                    Sign up
+                    {tr.signUp}
                   </button>
                   <br />
                   <span style={{ fontSize: "0.85rem" }}>
-                    Forgot password?{" "}
+                    {tr.forgotPassword}{" "}
                     <button onClick={() => switchMode("forgot")} className="link-btn" disabled={loading}>
-                      Send reset link
+                      {tr.sendResetLink}
                     </button>
                   </span>
                 </>
               ) : (
                 <>
-                  Already have an account?{" "}
+                  {tr.alreadyHaveAccount}{" "}
                   <button onClick={() => switchMode("signin")} className="link-btn" disabled={loading}>
-                    Sign in
+                    {tr.signInLink}
                   </button>
                 </>
               )}
             </p>
 
             <div className="login-divider">
-              <span>or</span>
+              <span>{tr.or}</span>
             </div>
 
             <button
@@ -212,13 +212,13 @@ export default function Login() {
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                 />
               </svg>
-              {loading ? "Please wait..." : "Continue with Google"}
+              {loading ? tr.pleaseWait : tr.continueWithGoogle}
             </button>
 
             <p className="login-legal">
-              <Link to="/privacy">Privacy Policy</Link>
+              <Link to="/privacy">{tr.privacyPolicy}</Link>
               {" · "}
-              <Link to="/terms">Terms of Service</Link>
+              <Link to="/terms">{tr.termsOfService}</Link>
             </p>
           </>
         )}
@@ -229,7 +229,7 @@ export default function Login() {
           <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" style={{ verticalAlign: "middle", marginRight: "6px" }}>
             <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
           </svg>
-          Open Source
+          {tr.openSource}
         </p>
         <p className="login-oss-links">
           <a href="https://github.com/beefy/stir_webui" target="_blank" rel="noopener noreferrer">Web UI</a>

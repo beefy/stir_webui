@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { BrowserRouter, Routes, Route, NavLink, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { ThemeProvider, useTheme } from "./contexts/ThemeContext";
+import { LocaleProvider, useLocale } from "./contexts/LocaleContext";
 import { getUnreadCount } from "./services/api";
 import SendMessage from "./pages/SendMessage";
 import MessageHistory from "./pages/MessageHistory";
@@ -14,6 +15,7 @@ import TermsOfService from "./pages/TermsOfService";
 function AppContent() {
   const { user, loading, initialized } = useAuth();
   const { resolved, setTheme } = useTheme();
+  const { translations: tr } = useLocale();
   const location = useLocation();
   const [unreadCount, setUnreadCount] = useState(0);
 
@@ -67,16 +69,16 @@ function AppContent() {
     <>
       <nav className="navbar">
         <NavLink to="/" end>
-          Send Message
+          {tr.navSendMessage}
         </NavLink>
         <NavLink to="/history" className="nav-unread-link">
-          Message History
+          {tr.navMessageHistory}
           {unreadCount > 0 && (
             <span className="nav-unread-badge">{unreadCount > 99 ? "99+" : unreadCount}</span>
           )}
         </NavLink>
-        <NavLink to="/blocks">Block History</NavLink>
-        <NavLink to="/settings">Settings</NavLink>
+        <NavLink to="/blocks">{tr.navBlockHistory}</NavLink>
+        <NavLink to="/settings">{tr.navSettings}</NavLink>
         <button
           className="navbar-theme-btn"
           onClick={() => setTheme(resolved === "dark" ? "light" : "dark")}
@@ -112,9 +114,11 @@ function App() {
   return (
     <BrowserRouter>
       <ThemeProvider>
-        <AuthProvider>
-          <AppContent />
-        </AuthProvider>
+        <LocaleProvider>
+          <AuthProvider>
+            <AppContent />
+          </AuthProvider>
+        </LocaleProvider>
       </ThemeProvider>
     </BrowserRouter>
   );

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { useLocale } from "../contexts/LocaleContext";
 import { getBlockList, unblockUser } from "../services/api";
 import { formatTime } from "../utils/formatTime";
 import type { BlockedUserEntry, Pagination } from "../types";
@@ -8,6 +9,7 @@ const PAGE_SIZE = 20;
 
 export default function BlockHistory() {
   const { user } = useAuth();
+  const { translations: tr } = useLocale();
   const userId = user?.uid ?? "";
   const [blockedUsers, setBlockedUsers] = useState<BlockedUserEntry[]>([]);
   const [pagination, setPagination] = useState<Pagination | null>(null);
@@ -61,7 +63,7 @@ export default function BlockHistory() {
 
   return (
     <div className="page">
-      <h1>Block History</h1>
+      <h1>{tr.blockHistoryTitle}</h1>
 
       {actionMsg && (
         <div className={`alert alert-${actionMsg.type}`}>{actionMsg.text}</div>
@@ -69,14 +71,14 @@ export default function BlockHistory() {
 
       {error && <div className="alert alert-error">{error}</div>}
 
-      {loading && <p className="loading-text">Loading blocked users...</p>}
+      {loading && <p className="loading-text">{tr.loading}</p>}
 
       {!loading && !error && blockedUsers.length === 0 && page === 1 && (
-        <p className="empty-text">No blocked users.</p>
+        <p className="empty-text">{tr.noBlockedUsers}</p>
       )}
 
       {!loading && !error && blockedUsers.length === 0 && page > 1 && (
-        <p className="empty-text">No more blocked users.</p>
+        <p className="empty-text">{tr.noMoreBlocked}</p>
       )}
 
       {blockedUsers.length > 0 && (
@@ -84,19 +86,20 @@ export default function BlockHistory() {
           {blockedUsers.map((entry) => (
             <div key={entry.blocked_user_id} className="card block-entry">
               <div className="block-entry-header">
-                <strong>Blocked User:</strong>{" "}
+                <strong>{tr.blockedUser}</strong>{" "}
                 <code>{entry.blocked_user_id}</code>
                 <button
                   className="btn-sm btn-unblock"
                   onClick={() => handleUnblock(entry.blocked_user_id)}
                 >
-                  Unblock
+                  {tr.unblock}
                 </button>
               </div>
 
               <p className="blocked-msg-count">
-                {entry.messages.length} message
-                {entry.messages.length !== 1 ? "s" : ""}
+                {entry.messages.length === 1
+                  ? tr.messageCount.replace("{count}", String(entry.messages.length))
+                  : tr.messageCountPlural.replace("{count}", String(entry.messages.length))}
               </p>
 
               {entry.messages.length > 0 && (
@@ -106,8 +109,8 @@ export default function BlockHistory() {
                       <div className="message-header">
                         <span className="message-direction">
                           {msg.send_user_id === userId
-                            ? "You → Blocked"
-                            : "Blocked → You"}
+                            ? tr.youArrowBlocked
+                            : tr.blockedArrowYou}
                         </span>
                         <span className="message-timestamp">
                           {formatTime(msg.sent_timestamp)}
@@ -117,12 +120,14 @@ export default function BlockHistory() {
                       <div className="message-meta">
                         {msg.reaction_type && (
                           <span className="meta-item">
-                            Reaction:{" "}
-                            {msg.reaction_type === "up" ? "👍" : "👎"}
+                            {tr.reaction.replace(
+                              "{emoji}",
+                              msg.reaction_type === "up" ? "👍" : "👎"
+                            )}
                           </span>
                         )}
                         {msg.reported && (
-                          <span className="meta-item reported">Reported</span>
+                          <span className="meta-item reported">{tr.reported}</span>
                         )}
                       </div>
                     </div>
@@ -141,17 +146,17 @@ export default function BlockHistory() {
             disabled={page <= 1 || loading}
             onClick={() => setPage((p) => p - 1)}
           >
-            ← Prev
+            {tr.prevPage}
           </button>
           <span className="pagination-info">
-            Page {page} of {totalPages}
+            {tr.pageOf.replace("{page}", String(page)).replace("{total}", String(totalPages))}
           </span>
           <button
             className="btn-sm"
             disabled={page >= totalPages || loading}
             onClick={() => setPage((p) => p + 1)}
           >
-            Next →
+            {tr.nextPage}
           </button>
         </div>
       )}
