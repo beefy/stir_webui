@@ -148,7 +148,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setState((prev) => ({ ...prev, loading: true, error: null }));
     isPendingSignOut = true;
     try {
-      const cred = await createAccount(email, password);
+      await createAccount(email, password);
 
       // Send verification email immediately after signup
       await sendVerificationEmail();

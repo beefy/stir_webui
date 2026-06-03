@@ -12,7 +12,6 @@ import {
   EmailAuthProvider,
   type UserCredential,
   type Auth,
-  type AuthCredential,
 } from "firebase/auth";
 
 const AUTH_BASE_URL =
