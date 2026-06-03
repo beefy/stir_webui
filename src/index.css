@@ -112,6 +112,27 @@ body {
   color: #fff;
 }
 
+/* Nav link with unread badge */
+.nav-unread-link {
+  position: relative;
+}
+
+.nav-unread-badge {
+  position: absolute;
+  top: -2px;
+  right: -6px;
+  background: #e53e3e;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 2px 5px;
+  border-radius: 10px;
+  min-width: 16px;
+  text-align: center;
+  pointer-events: none;
+}
+
 .navbar-user {
   font-size: 0.8rem;
   color: var(--text-muted);

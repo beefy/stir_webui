@@ -1,6 +1,8 @@
-import { BrowserRouter, Routes, Route, NavLink, Navigate } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
+import { BrowserRouter, Routes, Route, NavLink, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { ThemeProvider, useTheme } from "./contexts/ThemeContext";
+import { getUnreadCount } from "./services/api";
 import SendMessage from "./pages/SendMessage";
 import MessageHistory from "./pages/MessageHistory";
 import BlockHistory from "./pages/BlockHistory";
@@ -12,6 +14,32 @@ import TermsOfService from "./pages/TermsOfService";
 function AppContent() {
   const { user, loading, initialized } = useAuth();
   const { resolved, setTheme } = useTheme();
+  const location = useLocation();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const fetchUnread = useCallback(async () => {
+    if (!user) return;
+    try {
+      const data = await getUnreadCount();
+      setUnreadCount(data.unread_count);
+    } catch {
+      // Silently ignore — the badge just won't show
+    }
+  }, [user]);
+
+  // Fetch unread count on mount and poll every 30 seconds
+  useEffect(() => {
+    fetchUnread();
+    const interval = setInterval(fetchUnread, 30_000);
+    return () => clearInterval(interval);
+  }, [fetchUnread]);
+
+  // Clear the badge immediately when navigating to Message History
+  useEffect(() => {
+    if (location.pathname === "/history") {
+      setUnreadCount(0);
+    }
+  }, [location.pathname]);
 
   // Show a loading spinner while Firebase initializes
   if (!initialized || loading) {
@@ -41,7 +69,12 @@ function AppContent() {
         <NavLink to="/" end>
           Send Message
         </NavLink>
-        <NavLink to="/history">Message History</NavLink>
+        <NavLink to="/history" className="nav-unread-link">
+          Message History
+          {unreadCount > 0 && (
+            <span className="nav-unread-badge">{unreadCount > 99 ? "99+" : unreadCount}</span>
+          )}
+        </NavLink>
         <NavLink to="/blocks">Block History</NavLink>
         <NavLink to="/settings">Settings</NavLink>
         <button

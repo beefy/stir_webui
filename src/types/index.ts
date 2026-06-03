@@ -39,3 +39,7 @@ export interface ReactToMessageRequest {
 export interface ReportMessageRequest {
   message_id: string;
 }
+
+export interface UnreadCountResponse {
+  unread_count: number;
+}

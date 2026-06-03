@@ -6,6 +6,7 @@ import type {
   ReactToMessageRequest,
   ReportMessageRequest,
   SendMessageRequest,
+  UnreadCountResponse,
 } from "../types";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
@@ -99,4 +100,9 @@ export function reportMessage(data: ReportMessageRequest) {
     method: "POST",
     body: JSON.stringify(data),
   });
+}
+
+/** Get the number of unread messages for the authenticated user (GET /unread_messages). */
+export function getUnreadCount() {
+  return request<UnreadCountResponse>("/unread_messages");
 }
