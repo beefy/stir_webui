@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { getMessageHistory, reactToMessage, reportMessage, blockUser } from "../services/api";
+import { formatTime } from "../utils/formatTime";
 import type { Message } from "../types";
 
 export default function MessageHistory() {
@@ -89,16 +90,6 @@ export default function MessageHistory() {
 
   const isOwnMessage = (msg: Message) => msg.send_user_id === userId;
 
-  function formatLocalTime(iso: string): string {
-    return new Date(iso).toLocaleString(undefined, {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  }
-
   return (
     <div className="page">
       <h1>Message History</h1>
@@ -130,7 +121,7 @@ export default function MessageHistory() {
                   {isOwnMessage(msg) ? "You → Anon" : "Anon → You"}
                 </span>
                 <span className="message-timestamp">
-                  {formatLocalTime(msg.sent_timestamp)}
+                  {formatTime(msg.sent_timestamp)}
                 </span>
               </div>
 
@@ -139,7 +130,7 @@ export default function MessageHistory() {
               {msg.seen_timestamp && (
                 <div className="message-meta">
                   <span className="meta-item seen-badge">
-                    ✓ Seen {formatLocalTime(msg.seen_timestamp)}
+                    ✓ Seen {formatTime(msg.seen_timestamp)}
                   </span>
                 </div>
               )}

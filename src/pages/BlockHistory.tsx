@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { getBlockList, unblockUser } from "../services/api";
+import { formatTime } from "../utils/formatTime";
 import type { BlockedUserEntry } from "../types";
 
 export default function BlockHistory() {
@@ -93,7 +94,7 @@ export default function BlockHistory() {
                     <div key={msg.message_id} className="message-card received">
                       <div className="message-header">
                         <span className="message-timestamp">
-                          {new Date(msg.sent_timestamp).toLocaleString()}
+                          {formatTime(msg.sent_timestamp)}
                         </span>
                       </div>
                       <p className="message-content">{msg.message}</p>
