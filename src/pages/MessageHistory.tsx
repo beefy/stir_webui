@@ -89,6 +89,16 @@ export default function MessageHistory() {
 
   const isOwnMessage = (msg: Message) => msg.send_user_id === userId;
 
+  function formatLocalTime(iso: string): string {
+    return new Date(iso).toLocaleString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+
   return (
     <div className="page">
       <h1>Message History</h1>
@@ -120,23 +130,17 @@ export default function MessageHistory() {
                   {isOwnMessage(msg) ? "You → Anon" : "Anon → You"}
                 </span>
                 <span className="message-timestamp">
-                  {new Date(msg.sent_timestamp).toLocaleString()}
+                  {formatLocalTime(msg.sent_timestamp)}
                 </span>
               </div>
 
               <p className="message-content">{msg.message}</p>
 
-              {isOwnMessage(msg) && (
+              {msg.seen_timestamp && (
                 <div className="message-meta">
-                  {msg.seen_timestamp ? (
-                    <span className="meta-item seen-badge">
-                      ✓ Seen {new Date(msg.seen_timestamp).toLocaleString()}
-                    </span>
-                  ) : (
-                    <span className="meta-item unseen-badge">
-                      ○ Not yet seen
-                    </span>
-                  )}
+                  <span className="meta-item seen-badge">
+                    ✓ Seen {formatLocalTime(msg.seen_timestamp)}
+                  </span>
                 </div>
               )}
 
