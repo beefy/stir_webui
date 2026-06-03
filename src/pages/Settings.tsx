@@ -72,7 +72,7 @@ export default function Settings() {
       <div className="card settings-danger">
         <h2>Delete Account</h2>
         <p className="settings-description">
-          Permanently delete your account and all personal data. This action
+          Permanently delete your account and all associated data. This action
           cannot be undone.
         </p>
 

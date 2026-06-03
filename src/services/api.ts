@@ -47,6 +47,14 @@ export function loginBackend() {
   });
 }
 
+/** Delete the user's data from the backend (POST /delete_account). */
+export function deleteAccountBackend() {
+  return request<ApiResponse>("/delete_account", {
+    method: "POST",
+    body: JSON.stringify({}),
+  });
+}
+
 export function sendMessage(data: SendMessageRequest) {
   return request<ApiResponse>("/send_message", {
     method: "POST",

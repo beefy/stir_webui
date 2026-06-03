@@ -1,4 +1,5 @@
 import { initializeApp, type FirebaseApp } from "firebase/app";
+import { deleteAccountBackend } from "../services/api";
 import {
   getAuth,
   signInWithEmailAndPassword,
@@ -74,7 +75,8 @@ export async function sendVerificationEmail(): Promise<void> {
 
 /**
  * Re-authenticate the user (required for sensitive operations like account
- * deletion) and then delete the account.
+ * deletion), delete their data from the backend, and then delete the Firebase
+ * account.
  *
  * For email/password users the caller must provide the current password.
  * For Google SSO users a new popup sign-in is triggered.
@@ -109,7 +111,10 @@ export async function reauthenticateAndDeleteAccount(
     await reauthenticateWithCredential(user, credential);
   }
 
-  // Now delete the account
+  // Delete user data from the backend first
+  await deleteAccountBackend();
+
+  // Now delete the Firebase account
   await deleteUser(user);
 }
 
