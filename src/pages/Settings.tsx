@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { useTheme } from "../contexts/ThemeContext";
 
 export default function Settings() {
   const { user, deleteAccount, logout, loading, error, clearError } = useAuth();
+  const { theme, setTheme } = useTheme();
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleteInProgress, setDeleteInProgress] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -52,6 +54,45 @@ export default function Settings() {
             <strong>Email Verified:</strong>{" "}
             {user?.emailVerified ? "Yes" : "No"}
           </p>
+        </div>
+      </div>
+
+      <div className="card">
+        <h2>Theme</h2>
+        <p className="settings-description">
+          Choose your preferred color scheme.
+        </p>
+        <div className="theme-options">
+          <label className={`theme-option ${theme === "system" ? "active" : ""}`}>
+            <input
+              type="radio"
+              name="theme"
+              value="system"
+              checked={theme === "system"}
+              onChange={() => setTheme("system")}
+            />
+            <span className="theme-option-label">System</span>
+          </label>
+          <label className={`theme-option ${theme === "light" ? "active" : ""}`}>
+            <input
+              type="radio"
+              name="theme"
+              value="light"
+              checked={theme === "light"}
+              onChange={() => setTheme("light")}
+            />
+            <span className="theme-option-label">Light</span>
+          </label>
+          <label className={`theme-option ${theme === "dark" ? "active" : ""}`}>
+            <input
+              type="radio"
+              name="theme"
+              value="dark"
+              checked={theme === "dark"}
+              onChange={() => setTheme("dark")}
+            />
+            <span className="theme-option-label">Dark</span>
+          </label>
         </div>
       </div>
 
