@@ -21,7 +21,11 @@ export default function MessageHistory() {
     setActionMsg(null);
     try {
       const data = await getMessageHistory();
-      setMessages(data.messages);
+      // Show most recent messages first
+      const sorted = [...data.messages].sort(
+        (a, b) => new Date(b.sent_timestamp).getTime() - new Date(a.sent_timestamp).getTime()
+      );
+      setMessages(sorted);
     } catch (err: unknown) {
       const msg =
         err instanceof Error ? err.message : "Failed to fetch message history";
