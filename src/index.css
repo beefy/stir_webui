@@ -792,6 +792,24 @@ button[type="submit"]:disabled {
   padding-bottom: 1rem;
 }
 
+.pagination .btn-sm {
+  color: var(--text);
+  background: var(--surface);
+  border-color: var(--primary);
+  font-weight: 600;
+}
+
+.pagination .btn-sm:hover:not(:disabled) {
+  background: var(--primary);
+  color: #fff;
+}
+
+.pagination .btn-sm:disabled {
+  opacity: 0.4;
+  border-color: var(--border);
+  color: var(--text-muted);
+}
+
 .pagination-info {
   font-size: 0.85rem;
   color: var(--text-muted);
