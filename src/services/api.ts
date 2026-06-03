@@ -63,8 +63,10 @@ export function sendMessage(data: SendMessageRequest) {
   });
 }
 
-export function getMessageHistory() {
-  return request<MessageHistoryResponse>("/message_history");
+export function getMessageHistory(page = 1, pageSize = 20) {
+  return request<MessageHistoryResponse>(
+    `/message_history?page=${page}&page_size=${pageSize}`
+  );
 }
 
 export function blockUser(data: { message_id: string }) {
@@ -81,11 +83,14 @@ export function unblockUser(data: { blocked_user_id: string }) {
   });
 }
 
-export function getBlockList() {
-  return request<BlockListResponse>("/block_list", {
-    method: "POST",
-    body: JSON.stringify({}),
-  });
+export function getBlockList(page = 1, pageSize = 20) {
+  return request<BlockListResponse>(
+    `/block_list?page=${page}&page_size=${pageSize}`,
+    {
+      method: "POST",
+      body: JSON.stringify({}),
+    }
+  );
 }
 
 export function reactToMessage(data: ReactToMessageRequest) {

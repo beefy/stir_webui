@@ -2,12 +2,16 @@ import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { getBlockList, unblockUser } from "../services/api";
 import { formatTime } from "../utils/formatTime";
-import type { BlockedUserEntry } from "../types";
+import type { BlockedUserEntry, Pagination } from "../types";
+
+const PAGE_SIZE = 20;
 
 export default function BlockHistory() {
   const { user } = useAuth();
   const userId = user?.uid ?? "";
   const [blockedUsers, setBlockedUsers] = useState<BlockedUserEntry[]>([]);
+  const [pagination, setPagination] = useState<Pagination | null>(null);
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [actionMsg, setActionMsg] = useState<{
@@ -15,17 +19,18 @@ export default function BlockHistory() {
     text: string;
   } | null>(null);
 
-  const fetchBlockList = useCallback(async () => {
+  const fetchBlocks = useCallback(async (p: number) => {
     if (!userId) return;
     setLoading(true);
     setError(null);
     setActionMsg(null);
     try {
-      const data = await getBlockList();
+      const data = await getBlockList(p, PAGE_SIZE);
       setBlockedUsers(data.blocked_users);
+      setPagination(data.pagination);
     } catch (err: unknown) {
       const msg =
-        err instanceof Error ? err.message : "Failed to fetch block list";
+        err instanceof Error ? err.message : "Failed to fetch block history";
       setError(msg);
     } finally {
       setLoading(false);
@@ -33,15 +38,15 @@ export default function BlockHistory() {
   }, [userId]);
 
   useEffect(() => {
-    fetchBlockList();
-  }, [fetchBlockList]);
+    fetchBlocks(page);
+  }, [fetchBlocks, page]);
 
   const handleUnblock = async (blockedUserId: string) => {
     setActionMsg(null);
     try {
       const res = await unblockUser({ blocked_user_id: blockedUserId });
       setActionMsg({ type: "success", text: res.detail });
-      // Remove from local state
+      // Remove the entry from the list
       setBlockedUsers((prev) =>
         prev.filter((b) => b.blocked_user_id !== blockedUserId)
       );
@@ -52,12 +57,11 @@ export default function BlockHistory() {
     }
   };
 
+  const totalPages = pagination?.total_pages ?? 0;
+
   return (
     <div className="page">
       <h1>Block History</h1>
-      <p className="login-subtitle" style={{ textAlign: "left", marginBottom: "1rem" }}>
-        Signed in as: {user?.email ?? userId}
-      </p>
 
       {actionMsg && (
         <div className={`alert alert-${actionMsg.type}`}>{actionMsg.text}</div>
@@ -65,10 +69,14 @@ export default function BlockHistory() {
 
       {error && <div className="alert alert-error">{error}</div>}
 
-      {loading && <p className="loading-text">Loading block list...</p>}
+      {loading && <p className="loading-text">Loading blocked users...</p>}
 
-      {!loading && !error && blockedUsers.length === 0 && (
+      {!loading && !error && blockedUsers.length === 0 && page === 1 && (
         <p className="empty-text">No blocked users.</p>
+      )}
+
+      {!loading && !error && blockedUsers.length === 0 && page > 1 && (
+        <p className="empty-text">No more blocked users.</p>
       )}
 
       {blockedUsers.length > 0 && (
@@ -76,7 +84,8 @@ export default function BlockHistory() {
           {blockedUsers.map((entry) => (
             <div key={entry.blocked_user_id} className="card block-entry">
               <div className="block-entry-header">
-                <strong>Blocked User:</strong> {entry.blocked_user_id}
+                <strong>Blocked User:</strong>{" "}
+                <code>{entry.blocked_user_id}</code>
                 <button
                   className="btn-sm btn-unblock"
                   onClick={() => handleUnblock(entry.blocked_user_id)}
@@ -85,14 +94,21 @@ export default function BlockHistory() {
                 </button>
               </div>
 
+              <p className="blocked-msg-count">
+                {entry.messages.length} message
+                {entry.messages.length !== 1 ? "s" : ""}
+              </p>
+
               {entry.messages.length > 0 && (
-                <div className="blocked-messages">
-                  <p className="blocked-msg-count">
-                    Messages from this user ({entry.messages.length}):
-                  </p>
+                <div className="blocked-messages message-list">
                   {entry.messages.map((msg) => (
-                    <div key={msg.message_id} className="message-card received">
+                    <div key={msg.message_id} className="message-card">
                       <div className="message-header">
+                        <span className="message-direction">
+                          {msg.send_user_id === userId
+                            ? "You → Blocked"
+                            : "Blocked → You"}
+                        </span>
                         <span className="message-timestamp">
                           {formatTime(msg.sent_timestamp)}
                         </span>
@@ -101,7 +117,8 @@ export default function BlockHistory() {
                       <div className="message-meta">
                         {msg.reaction_type && (
                           <span className="meta-item">
-                            Reaction: {msg.reaction_type === "up" ? "👍" : "👎"}
+                            Reaction:{" "}
+                            {msg.reaction_type === "up" ? "👍" : "👎"}
                           </span>
                         )}
                         {msg.reported && (
@@ -112,12 +129,30 @@ export default function BlockHistory() {
                   ))}
                 </div>
               )}
-
-              {entry.messages.length === 0 && (
-                <p className="empty-text">No messages from this user.</p>
-              )}
             </div>
           ))}
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="pagination">
+          <button
+            className="btn-sm"
+            disabled={page <= 1 || loading}
+            onClick={() => setPage((p) => p - 1)}
+          >
+            ← Prev
+          </button>
+          <span className="pagination-info">
+            Page {page} of {totalPages}
+          </span>
+          <button
+            className="btn-sm"
+            disabled={page >= totalPages || loading}
+            onClick={() => setPage((p) => p + 1)}
+          >
+            Next →
+          </button>
         </div>
       )}
     </div>

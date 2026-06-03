@@ -782,6 +782,22 @@ button[type="submit"]:disabled {
   background: var(--vote-down-bg);
 }
 
+/* Pagination */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-bottom: 1rem;
+}
+
+.pagination-info {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
 /* Confirm delete */
 .confirm-delete {
   margin-top: 0.5rem;

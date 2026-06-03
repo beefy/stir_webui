@@ -2,12 +2,16 @@ import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { getMessageHistory, reactToMessage, reportMessage, blockUser } from "../services/api";
 import { formatTime } from "../utils/formatTime";
-import type { Message } from "../types";
+import type { Message, Pagination } from "../types";
+
+const PAGE_SIZE = 20;
 
 export default function MessageHistory() {
   const { user } = useAuth();
   const userId = user?.uid ?? "";
   const [messages, setMessages] = useState<Message[]>([]);
+  const [pagination, setPagination] = useState<Pagination | null>(null);
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [actionMsg, setActionMsg] = useState<{
@@ -15,18 +19,15 @@ export default function MessageHistory() {
     text: string;
   } | null>(null);
 
-  const fetchHistory = useCallback(async () => {
+  const fetchHistory = useCallback(async (p: number) => {
     if (!userId) return;
     setLoading(true);
     setError(null);
     setActionMsg(null);
     try {
-      const data = await getMessageHistory();
-      // Show most recent messages first
-      const sorted = [...data.messages].sort(
-        (a, b) => new Date(b.sent_timestamp).getTime() - new Date(a.sent_timestamp).getTime()
-      );
-      setMessages(sorted);
+      const data = await getMessageHistory(p, PAGE_SIZE);
+      setMessages(data.messages);
+      setPagination(data.pagination);
     } catch (err: unknown) {
       const msg =
         err instanceof Error ? err.message : "Failed to fetch message history";
@@ -37,12 +38,11 @@ export default function MessageHistory() {
   }, [userId]);
 
   useEffect(() => {
-    fetchHistory();
-  }, [fetchHistory]);
+    fetchHistory(page);
+  }, [fetchHistory, page]);
 
   const handleReact = async (messageId: string, currentReaction: string | null, target: "up" | "down") => {
     setActionMsg(null);
-    // Toggle: if clicking the same reaction, clear it; otherwise set it
     const next = currentReaction === target ? null : target;
 
     try {
@@ -90,6 +90,8 @@ export default function MessageHistory() {
 
   const isOwnMessage = (msg: Message) => msg.send_user_id === userId;
 
+  const totalPages = pagination?.total_pages ?? 0;
+
   return (
     <div className="page">
       <h1>Message History</h1>
@@ -105,8 +107,12 @@ export default function MessageHistory() {
 
       {loading && <p className="loading-text">Loading messages...</p>}
 
-      {!loading && !error && messages.length === 0 && (
+      {!loading && !error && messages.length === 0 && page === 1 && (
         <p className="empty-text">No messages found.</p>
+      )}
+
+      {!loading && !error && messages.length === 0 && page > 1 && (
+        <p className="empty-text">No more messages.</p>
       )}
 
       {messages.length > 0 && (
@@ -137,7 +143,6 @@ export default function MessageHistory() {
 
               {!isOwnMessage(msg) && (
                 <div className="message-actions">
-                  {/* Reddit-style upvote / downvote */}
                   <div className="vote-group">
                     <button
                       className={`vote-btn up ${msg.reaction_type === "up" ? "active" : ""}`}
@@ -189,6 +194,28 @@ export default function MessageHistory() {
               )}
             </div>
           ))}
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="pagination">
+          <button
+            className="btn-sm"
+            disabled={page <= 1 || loading}
+            onClick={() => setPage((p) => p - 1)}
+          >
+            ← Prev
+          </button>
+          <span className="pagination-info">
+            Page {page} of {totalPages}
+          </span>
+          <button
+            className="btn-sm"
+            disabled={page >= totalPages || loading}
+            onClick={() => setPage((p) => p + 1)}
+          >
+            Next →
+          </button>
         </div>
       )}
     </div>

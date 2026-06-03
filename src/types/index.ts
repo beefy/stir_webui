@@ -1,3 +1,10 @@
+export interface Pagination {
+  page: number;
+  page_size: number;
+  total_items: number;
+  total_pages: number;
+}
+
 export interface Message {
   message_id: string;
   send_user_id: string;
@@ -11,6 +18,7 @@ export interface Message {
 
 export interface MessageHistoryResponse {
   messages: Message[];
+  pagination: Pagination;
 }
 
 export interface BlockedUserEntry {
@@ -20,6 +28,7 @@ export interface BlockedUserEntry {
 
 export interface BlockListResponse {
   blocked_users: BlockedUserEntry[];
+  pagination: Pagination;
 }
 
 export interface ApiResponse {
