@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route, NavLink, Navigate, useLocation } from "react-router-dom";
+import { useRef } from "react";
+import { BrowserRouter, Routes, Route, NavLink, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import SendMessage from "./pages/SendMessage";
 import MessageHistory from "./pages/MessageHistory";
@@ -8,7 +9,7 @@ import Settings from "./pages/Settings";
 
 function AppContent() {
   const { user, loading, initialized } = useAuth();
-  const location = useLocation();
+  const redirected = useRef(false);
 
   // Show a loading spinner while Firebase initializes
   if (!initialized || loading) {
@@ -22,6 +23,8 @@ function AppContent() {
 
   // If not authenticated, show the login page
   if (!user) {
+    // Reset the flag so the redirect fires again on next login
+    redirected.current = false;
     return (
       <Routes>
         <Route path="*" element={<Login />} />
@@ -29,8 +32,9 @@ function AppContent() {
     );
   }
 
-  // After login, always redirect to Send Message (home)
-  if (location.pathname !== "/") {
+  // After login, redirect to Send Message once
+  if (!redirected.current) {
+    redirected.current = true;
     return <Navigate to="/" replace />;
   }
 
