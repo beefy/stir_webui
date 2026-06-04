@@ -4,6 +4,7 @@ import type {
   BlockListResponse,
   MessageHistoryResponse,
   KarmaResponse,
+  ForwardMessageRequest,
   ReactToMessageRequest,
   ReportMessageRequest,
   SendMessageRequest,
@@ -116,4 +117,12 @@ export function getUnreadCount() {
 /** Get the karma score for the authenticated user (GET /karma_count). */
 export function getKarmaCount() {
   return request<KarmaResponse>("/karma_count");
+}
+
+/** Forward a received message to a random recipient (POST /forward_message). */
+export function forwardMessage(data: ForwardMessageRequest) {
+  return request<ApiResponse>("/forward_message", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
 }

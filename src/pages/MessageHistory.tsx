@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useLocale } from "../contexts/LocaleContext";
-import { getMessageHistory, reactToMessage, reportMessage, blockUser } from "../services/api";
+import { getMessageHistory, reactToMessage, reportMessage, blockUser, forwardMessage } from "../services/api";
 import { formatTime } from "../utils/formatTime";
 import type { Message, Pagination } from "../types";
 
@@ -20,6 +20,7 @@ export default function MessageHistory() {
     type: "success" | "error";
     text: string;
   } | null>(null);
+  const [forwardingId, setForwardingId] = useState<string | null>(null);
 
   const fetchHistory = useCallback(async (p: number) => {
     if (!userId) return;
@@ -90,6 +91,21 @@ export default function MessageHistory() {
     }
   };
 
+  const handleForward = async (messageId: string) => {
+    setActionMsg(null);
+    setForwardingId(messageId);
+    try {
+      const res = await forwardMessage({ message_id: messageId });
+      setActionMsg({ type: "success", text: res.detail });
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error ? err.message : "Failed to forward message";
+      setActionMsg({ type: "error", text: msg });
+    } finally {
+      setForwardingId(null);
+    }
+  };
+
   const isOwnMessage = (msg: Message) => msg.send_user_id === userId;
 
   const totalPages = pagination?.total_pages ?? 0;
@@ -143,6 +159,26 @@ export default function MessageHistory() {
                 </div>
               )}
 
+              {/* Forward count badge on sent messages */}
+              {isOwnMessage(msg) && msg.forward_count !== undefined && msg.forward_count > 0 && (
+                <div className="message-meta">
+                  <span className="meta-item forward-badge">
+                    {msg.forward_count === 1
+                      ? tr.forwardCount.replace("{count}", String(msg.forward_count))
+                      : tr.forwardCountPlural.replace("{count}", String(msg.forward_count))}
+                  </span>
+                </div>
+              )}
+
+              {/* Total karma on sent messages */}
+              {isOwnMessage(msg) && msg.total_karma !== undefined && (
+                <div className="message-meta">
+                  <span className={`meta-item karma-badge ${msg.total_karma > 0 ? "positive" : msg.total_karma < 0 ? "negative" : ""}`}>
+                    {tr.totalKarma.replace("{value}", msg.total_karma > 0 ? `+${msg.total_karma}` : String(msg.total_karma))}
+                  </span>
+                </div>
+              )}
+
               {!isOwnMessage(msg) && (
                 <div className="message-actions">
                   <div className="vote-group">
@@ -163,6 +199,15 @@ export default function MessageHistory() {
                       ▼
                     </button>
                   </div>
+
+                  <button
+                    className="btn-sm btn-forward"
+                    onClick={() => handleForward(msg.message_id)}
+                    disabled={forwardingId === msg.message_id}
+                    title={tr.forward}
+                  >
+                    {forwardingId === msg.message_id ? tr.forwarding : tr.forward}
+                  </button>
 
                   <button
                     className="btn-sm btn-report"

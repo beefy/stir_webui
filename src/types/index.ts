@@ -14,6 +14,8 @@ export interface Message {
   seen_timestamp: string | null;
   reaction_type: string | null;
   reported: boolean;
+  forward_count?: number;
+  total_karma?: number;
 }
 
 export interface MessageHistoryResponse {
@@ -46,6 +48,10 @@ export interface ReactToMessageRequest {
 }
 
 export interface ReportMessageRequest {
+  message_id: string;
+}
+
+export interface ForwardMessageRequest {
   message_id: string;
 }
 

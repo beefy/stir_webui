@@ -433,6 +433,33 @@ button[type="submit"]:disabled {
   background: var(--alert-success-bg);
 }
 
+/* Forward button */
+.btn-forward {
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.btn-forward:hover:not(:disabled) {
+  background: var(--navbar-hover);
+}
+
+/* Forward count badge */
+.forward-badge {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* Karma badge on message cards */
+.karma-badge.positive {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.karma-badge.negative {
+  color: var(--error);
+  font-weight: 600;
+}
+
 /* Block List */
 .block-list {
   display: flex;
