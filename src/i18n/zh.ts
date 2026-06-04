@@ -2,9 +2,9 @@ import type { Translations } from "./en";
 
 const zh: Translations = {
   // Navbar
-  navSendMessage: "发送消息",
-  navMessageHistory: "消息历史",
-  navBlockHistory: "屏蔽记录",
+  navSendMessage: "发送",
+  navMessageHistory: "消息",
+  navBlockHistory: "已屏蔽",
   navSettings: "设置",
   navToggleTheme: "切换到{mode}模式",
 

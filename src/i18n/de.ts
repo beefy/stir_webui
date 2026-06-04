@@ -2,9 +2,9 @@ import type { Translations } from "./en";
 
 const de: Translations = {
   // Navbar
-  navSendMessage: "Nachricht senden",
-  navMessageHistory: "Nachrichtenverlauf",
-  navBlockHistory: "Blockierte Nutzer",
+  navSendMessage: "Senden",
+  navMessageHistory: "Nachrichten",
+  navBlockHistory: "Blockiert",
   navSettings: "Einstellungen",
   navToggleTheme: "Zu {mode}-Modus wechseln",
 

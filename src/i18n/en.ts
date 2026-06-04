@@ -1,8 +1,8 @@
 const en = {
   // Navbar
-  navSendMessage: "Send Message",
-  navMessageHistory: "Message History",
-  navBlockHistory: "Block History",
+  navSendMessage: "Send",
+  navMessageHistory: "Messages",
+  navBlockHistory: "Blocked",
   navSettings: "Settings",
   navToggleTheme: "Switch to {mode} mode",
 
