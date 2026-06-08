@@ -70,20 +70,6 @@ export default function Login() {
     setMode(newMode);
   };
 
-  const isBannedLocation = (country: string, state: string): string | null => {
-    if (BANNED_COUNTRIES_SET.has(country)) {
-      const key = `location${country}` as keyof typeof tr;
-      const name = tr[key] || country;
-      return tr.locationBanned.replace("{location}", name);
-    }
-    if (country === "US" && state && BANNED_STATES_SET.has(state)) {
-      const key = `location${state}` as keyof typeof tr;
-      const name = tr[key] || state;
-      return tr.locationBanned.replace("{location}", name);
-    }
-    return null;
-  };
-
   const handleCountryChange = (value: string) => {
     setLocationCountry(value);
     setLocationState("");
