@@ -65,7 +65,7 @@ export async function detectLocation(): Promise<LocationInfo | null> {
       proxy: data.proxy === true,
     };
   } catch {
-    // If geolocation fails, allow access by default (fail open)
+    // If geolocation fails (network error, etc.), return null
     return null;
   }
 }
@@ -96,13 +96,21 @@ export function isLocationBanned(location: LocationInfo): { banned: boolean; rea
 
 /**
  * Full check: detect location and verify it's allowed.
+ *
+ * ⚠️ Fails closed: if location detection fails (rate limited, network error, etc.),
+ * access is denied. This ensures users can't bypass restrictions by blocking
+ * the geolocation API.
  */
 export async function checkLocation(): Promise<LocationCheckResult> {
   const location = await detectLocation();
 
   if (!location) {
-    // Could not detect location — allow access (fail open)
-    return { allowed: true, location: null };
+    // Could not detect location — deny access (fail closed)
+    return {
+      allowed: false,
+      reason: "Could not verify your location. Please disable any ad blockers or privacy extensions and try again.",
+      location: null,
+    };
   }
 
   const { banned, reason } = isLocationBanned(location);
