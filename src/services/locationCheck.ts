@@ -41,8 +41,10 @@ export interface LocationCheckResult {
 }
 
 /**
- * Detect the user's location via a free IP geolocation API.
- * Uses ip-api.com which is free for non-commercial use (no API key needed).
+ * Detect the user's location via ip-api.com (paid pro tier).
+ *
+ * Uses VITE_IP_API_KEY env var for authentication.
+ * Endpoint: https://pro.ip-api.com/json/?key=<key>&fields=...
  *
  * Fields requested:
  *   - status: success/fail
@@ -53,7 +55,9 @@ export interface LocationCheckResult {
  */
 export async function detectLocation(): Promise<LocationInfo | null> {
   try {
-    const response = await fetch("http://ip-api.com/json/?fields=status,countryCode,region,city,proxy");
+    const apiKey = import.meta.env.VITE_IP_API_KEY || "";
+    const url = `https://pro.ip-api.com/json/?key=${apiKey}&fields=status,countryCode,region,city,proxy`;
+    const response = await fetch(url);
     if (!response.ok) return null;
     const data = await response.json();
     if (data.status !== "success") return null;
