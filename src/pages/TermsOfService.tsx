@@ -20,6 +20,11 @@ export default function TermsOfService() {
       </section>
 
       <section style={{ marginBottom: "1.5rem" }}>
+        <h2>{tr.termsAge}</h2>
+        <p>{tr.termsAgeText}</p>
+      </section>
+
+      <section style={{ marginBottom: "1.5rem" }}>
         <h2>{tr.termsDescription}</h2>
         <p>{tr.termsDescriptionText}</p>
       </section>

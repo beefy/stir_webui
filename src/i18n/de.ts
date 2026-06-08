@@ -257,6 +257,8 @@ const de: Translations = {
   termsTitle: "Nutzungsbedingungen",
   termsAcceptance: "Annahme der Bedingungen",
   termsAcceptanceText: "Durch die Erstellung eines Kontos und die Nutzung dieses Dienstes stimmst du diesen Nutzungsbedingungen zu. Wenn du nicht zustimmst, nutze den Dienst nicht.",
+  termsAge: "Altersvoraussetzung",
+  termsAgeText: "Du musst mindestens 18 Jahre alt sein, um diesen Dienst zu nutzen. Mit der Erstellung eines Kontos bestätigst du, dass du 18 Jahre oder älter bist.",
   termsDescription: "Beschreibung des Dienstes",
   termsDescriptionText: "Dieser Dienst ermöglicht es Benutzern, anonyme Nachrichten an zufällige andere Benutzer zu senden. Nachrichten werden an einen zufällig ausgewählten Empfänger zugestellt. Die Identität von Sendern und Empfängern wird niemals preisgegeben.",
   termsConduct: "Benutzerverhalten",

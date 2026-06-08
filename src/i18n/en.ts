@@ -255,6 +255,8 @@ const en = {
   termsTitle: "Terms of Service",
   termsAcceptance: "Acceptance of Terms",
   termsAcceptanceText: "By creating an account and using this service, you agree to these Terms of Service. If you do not agree, do not use the service.",
+  termsAge: "Age Requirement",
+  termsAgeText: "You must be at least 18 years old to use this service. By creating an account, you confirm that you are 18 years of age or older.",
   termsDescription: "Description of Service",
   termsDescriptionText: "This service allows users to send anonymous messages to random other users. Messages are delivered to a randomly selected recipient. The identity of senders and recipients is never revealed.",
   termsConduct: "User Conduct",

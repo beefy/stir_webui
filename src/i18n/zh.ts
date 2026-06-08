@@ -257,6 +257,8 @@ const zh: Translations = {
   termsTitle: "服务条款",
   termsAcceptance: "接受条款",
   termsAcceptanceText: "通过创建账户并使用本服务，你同意这些服务条款。如果你不同意，请不要使用本服务。",
+  termsAge: "年龄要求",
+  termsAgeText: "你必须年满18岁才能使用本服务。创建账户即表示你确认自己已年满18岁。",
   termsDescription: "服务描述",
   termsDescriptionText: "本服务允许用户向随机的其他用户发送匿名消息。消息会传递给随机选择的收件人。发送者和收件人的身份永远不会被透露。",
   termsConduct: "用户行为",
