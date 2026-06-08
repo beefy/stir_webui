@@ -2,8 +2,25 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useLocale } from "../contexts/LocaleContext";
+import { BANNED_LOCATIONS } from "../services/locationCheck";
 
 type Mode = "signin" | "signup" | "forgot";
+
+// Location data for the signup form
+const US_STATES = [
+  "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
+  "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
+  "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
+  "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
+  "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY",
+];
+
+const COUNTRIES = [
+  "US", "AU", "FR", "PT", "IT", "GR",
+];
+
+const BANNED_STATES_SET = new Set(BANNED_LOCATIONS.usStates);
+const BANNED_COUNTRIES_SET = new Set(BANNED_LOCATIONS.countries);
 
 export default function Login() {
   const { login, signup, loginWithGoogleSso, resetPassword, loading, error, clearError } =
@@ -14,12 +31,55 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [resetSent, setResetSent] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
+  const [locationCountry, setLocationCountry] = useState("");
+  const [locationState, setLocationState] = useState("");
+  const [locationError, setLocationError] = useState("");
 
   const switchMode = (newMode: Mode) => {
     clearError();
     setResetSent(false);
     setAgreeTerms(false);
+    setLocationCountry("");
+    setLocationState("");
+    setLocationError("");
     setMode(newMode);
+  };
+
+  const isBannedLocation = (country: string, state: string): string | null => {
+    if (BANNED_COUNTRIES_SET.has(country)) {
+      const key = `location${country}` as keyof typeof tr;
+      const name = tr[key] || country;
+      return tr.locationBanned.replace("{location}", name);
+    }
+    if (country === "US" && state && BANNED_STATES_SET.has(state)) {
+      const key = `location${state}` as keyof typeof tr;
+      const name = tr[key] || state;
+      return tr.locationBanned.replace("{location}", name);
+    }
+    return null;
+  };
+
+  const handleCountryChange = (value: string) => {
+    setLocationCountry(value);
+    setLocationState("");
+    setLocationError("");
+
+    if (value && BANNED_COUNTRIES_SET.has(value)) {
+      const key = `location${value}` as keyof typeof tr;
+      const name = tr[key] || value;
+      setLocationError(tr.locationBanned.replace("{location}", name));
+    }
+  };
+
+  const handleStateChange = (value: string) => {
+    setLocationState(value);
+    setLocationError("");
+
+    if (value && BANNED_STATES_SET.has(value)) {
+      const key = `location${value}` as keyof typeof tr;
+      const name = tr[key] || value;
+      setLocationError(tr.locationBanned.replace("{location}", name));
+    }
   };
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
@@ -149,26 +209,78 @@ export default function Login() {
               </div>
 
               {isSignup && (
-                <div className="form-group agree-terms-group">
-                  <label className="agree-terms-label">
-                    <input
-                      type="checkbox"
-                      checked={agreeTerms}
-                      onChange={(e) => setAgreeTerms(e.target.checked)}
-                      className="agree-terms-checkbox"
-                    />
-                    <span>
-                      {tr.agreeToTerms
-                        .replace("{privacyPolicy}", tr.privacyPolicy)
-                        .replace("{termsOfService}", tr.termsOfService)}
-                    </span>
-                  </label>
-                </div>
+                <>
+                  <div className="form-group">
+                    <label htmlFor="locationCountry">{tr.locationQuestion}</label>
+                    <select
+                      id="locationCountry"
+                      value={locationCountry}
+                      onChange={(e) => handleCountryChange(e.target.value)}
+                      className="location-select"
+                      required
+                    >
+                      <option value="">{tr.locationSelectCountry}</option>
+                      {COUNTRIES.map((code) => {
+                        const key = `location${code}` as keyof typeof tr;
+                        return (
+                          <option key={code} value={code}>
+                            {tr[key]}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </div>
+
+                  {locationCountry === "US" && (
+                    <div className="form-group">
+                      <label htmlFor="locationState">{tr.locationSelectState}</label>
+                      <select
+                        id="locationState"
+                        value={locationState}
+                        onChange={(e) => handleStateChange(e.target.value)}
+                        className="location-select"
+                        required
+                      >
+                        <option value="">{tr.locationSelectState}</option>
+                        {US_STATES.map((code) => {
+                          const key = `location${code}` as keyof typeof tr;
+                          return (
+                            <option key={code} value={code}>
+                              {tr[key]}
+                            </option>
+                          );
+                        })}
+                      </select>
+                    </div>
+                  )}
+
+                  {locationError && (
+                    <div className="alert alert-error" style={{ fontSize: "0.85rem", padding: "0.6rem 0.75rem" }}>
+                      {locationError}
+                    </div>
+                  )}
+
+                  <div className="form-group agree-terms-group">
+                    <label className="agree-terms-label">
+                      <input
+                        type="checkbox"
+                        checked={agreeTerms}
+                        onChange={(e) => setAgreeTerms(e.target.checked)}
+                        className="agree-terms-checkbox"
+                      />
+                      <span>
+                        {tr.agreeToTerms
+                          .replace("{privacyPolicy}", tr.privacyPolicy)
+                          .replace("{termsOfService}", tr.termsOfService)}
+                      </span>
+                    </label>
+                  </div>
+                </>
               )}
 
               <button
                 type="submit"
-                disabled={loading || (isSignup && !agreeTerms)}
+                disabled={loading || (isSignup && (!agreeTerms || !locationCountry || !!locationError))}
                 className="btn-primary btn-full"
               >
                 {loading

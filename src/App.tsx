@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { LocaleProvider, useLocale } from "./contexts/LocaleContext";
 import { getUnreadCount } from "./services/api";
+import { checkLocation } from "./services/locationCheck";
 import SendMessage from "./pages/SendMessage";
 import MessageHistory from "./pages/MessageHistory";
 import BlockHistory from "./pages/BlockHistory";
@@ -17,6 +18,8 @@ function AppContent() {
   const { translations: tr } = useLocale();
   const location = useLocation();
   const [unreadCount, setUnreadCount] = useState(0);
+  const [locationBlocked, setLocationBlocked] = useState<string | null>(null);
+  const [locationChecked, setLocationChecked] = useState(false);
 
   const fetchUnread = useCallback(async () => {
     if (!user) return;
@@ -42,8 +45,33 @@ function AppContent() {
     }
   }, [location.pathname]);
 
-  // Show a loading spinner while Firebase initializes
-  if (!initialized || loading) {
+  // Check user's location on mount (IP blocklisting)
+  useEffect(() => {
+    checkLocation().then((result) => {
+      if (!result.allowed && result.reason) {
+        setLocationBlocked(result.reason);
+      }
+      setLocationChecked(true);
+    });
+  }, []);
+
+  // Show a blocked page if the user is from a banned location
+  if (locationBlocked) {
+    return (
+      <div className="page" style={{ maxWidth: "500px", margin: "0 auto", padding: "4rem 1rem", textAlign: "center" }}>
+        <h1 style={{ color: "var(--error)", marginBottom: "1rem" }}>Access Denied</h1>
+        <p style={{ color: "var(--text-muted)", fontSize: "1rem", lineHeight: 1.6 }}>
+          {locationBlocked}
+        </p>
+        <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", marginTop: "1.5rem" }}>
+          If you believe this is an error, please contact the service administrator.
+        </p>
+      </div>
+    );
+  }
+
+  // Show a loading spinner while Firebase initializes or location is being checked
+  if (!initialized || loading || !locationChecked) {
     return (
       <div className="loading-screen">
         <div className="spinner" />

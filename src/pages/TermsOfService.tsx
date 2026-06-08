@@ -37,6 +37,11 @@ export default function TermsOfService() {
       </section>
 
       <section style={{ marginBottom: "1.5rem" }}>
+        <h2>{tr.termsGeoRestriction}</h2>
+        <p>{tr.termsGeoRestrictionText}</p>
+      </section>
+
+      <section style={{ marginBottom: "1.5rem" }}>
         <h2>{tr.termsReporting}</h2>
         <p>{tr.termsReportingText}</p>
       </section>

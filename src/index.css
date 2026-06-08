@@ -623,6 +623,27 @@ button[type="submit"]:disabled {
   text-decoration: underline;
 }
 
+/* Location select dropdowns */
+.location-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-family: inherit;
+  background: var(--surface);
+  color: var(--text);
+  transition: border-color 0.15s;
+  cursor: pointer;
+  appearance: auto;
+}
+
+.location-select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
 /* Agree to terms checkbox */
 .agree-terms-group {
   margin-bottom: 1rem;
