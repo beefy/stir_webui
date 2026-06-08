@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useLocale } from "../contexts/LocaleContext";
-import { BANNED_LOCATIONS, detectLocation, type LocationInfo } from "../services/locationCheck";
+import { BANNED_LOCATIONS } from "../services/locationCheck";
 import LocationSelect from "../components/LocationSelect";
 
 type Mode = "signin" | "signup" | "forgot";
@@ -121,36 +121,6 @@ export default function Login() {
   const isSignin = mode === "signin";
   const isForgot = mode === "forgot";
   const isSignup = mode === "signup";
-
-  // Debug: detect real IP location and simulate banned user experience
-  const [debugOpen, setDebugOpen] = useState(false);
-  const [realLocation, setRealLocation] = useState<LocationInfo | null>(null);
-  const [locationLoading, setLocationLoading] = useState(false);
-  const [locationError2, setLocationError2] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (debugOpen && !realLocation && !locationLoading) {
-      setLocationLoading(true);
-      setLocationError2(null);
-      detectLocation().then((loc) => {
-        setRealLocation(loc);
-        setLocationLoading(false);
-      }).catch(() => {
-        setLocationError2("Failed to detect location");
-        setLocationLoading(false);
-      });
-    }
-  }, [debugOpen, realLocation, locationLoading]);
-
-  // Simulate what a French user would see
-  const simulateFrance = () => {
-    const frKey = `locationFr` as keyof typeof tr;
-    const frName = tr[frKey] || "France";
-    return tr.locationBanned.replace("{location}", frName);
-  };
-
-  // Simulate what a VPN user would see
-  const simulateVpn = () => "VPNs and proxies are not allowed. Please disable your VPN or proxy and try again.";
 
   return (
     <div className="page login-page">
@@ -402,95 +372,6 @@ export default function Login() {
         </p>
       </div>
 
-      {/* Debug: Location check simulator */}
-      <div style={{ position: "fixed", bottom: "8px", right: "8px", zIndex: 9999 }}>
-        <button
-          onClick={() => setDebugOpen(!debugOpen)}
-          style={{
-            background: debugOpen ? "var(--primary)" : "var(--surface)",
-            color: debugOpen ? "#fff" : "var(--text-muted)",
-            border: "1px solid var(--border)",
-            borderRadius: "var(--radius)",
-            padding: "4px 10px",
-            fontSize: "0.75rem",
-            cursor: "pointer",
-            fontFamily: "monospace",
-          }}
-          title="Location debug"
-        >
-          {debugOpen ? "✕" : "📍"}
-        </button>
-      </div>
-
-      {debugOpen && (
-        <div
-          style={{
-            position: "fixed",
-            bottom: "40px",
-            right: "8px",
-            zIndex: 9999,
-            background: "var(--surface)",
-            border: "1px solid var(--border)",
-            borderRadius: "var(--radius)",
-            padding: "12px",
-            maxWidth: "360px",
-            fontSize: "0.8rem",
-            lineHeight: "1.5",
-            boxShadow: "0 4px 16px rgba(0,0,0,0.2)",
-          }}
-        >
-          <strong style={{ color: "var(--primary)", display: "block", marginBottom: "6px" }}>
-            🛠 Location Debug
-          </strong>
-
-          <div style={{ marginBottom: "8px", color: "var(--text)" }}>
-            <div><strong>Your IP location:</strong></div>
-            {locationLoading ? (
-              <span style={{ color: "var(--text-muted)" }}>Detecting...</span>
-            ) : locationError2 ? (
-              <span style={{ color: "var(--error)" }}>{locationError2}</span>
-            ) : realLocation ? (
-              <div style={{ paddingLeft: "8px", color: "var(--text-muted)" }}>
-                <div>Country: <strong>{realLocation.countryCode}</strong></div>
-                <div>Region: <strong>{realLocation.regionCode || "—"}</strong></div>
-                <div>City: <strong>{realLocation.city}</strong></div>
-                <div>
-                  VPN/Proxy:{" "}
-                  <strong style={{ color: realLocation.proxy ? "var(--error)" : "var(--success)" }}>
-                    {realLocation.proxy ? "YES" : "No"}
-                  </strong>
-                </div>
-                <div style={{ marginTop: "4px" }}>
-                  Banned?{" "}
-                  <strong style={{ color: realLocation.proxy || BANNED_COUNTRIES_SET.has(realLocation.countryCode) || (realLocation.countryCode === "US" && realLocation.regionCode && BANNED_STATES_SET.has(realLocation.regionCode)) ? "var(--error)" : "var(--success)" }}>
-                    {realLocation.proxy || BANNED_COUNTRIES_SET.has(realLocation.countryCode) || (realLocation.countryCode === "US" && realLocation.regionCode && BANNED_STATES_SET.has(realLocation.regionCode)) ? "YES" : "No"}
-                  </strong>
-                </div>
-              </div>
-            ) : (
-              <span style={{ color: "var(--text-muted)" }}>Click to detect</span>
-            )}
-          </div>
-
-          <div style={{ borderTop: "1px solid var(--border)", paddingTop: "8px", color: "var(--text)" }}>
-            <div><strong>Simulated: User from France</strong></div>
-            <div style={{ paddingLeft: "8px", marginTop: "4px" }}>
-              <div className="alert alert-error" style={{ fontSize: "0.8rem", padding: "0.5rem 0.65rem", margin: 0 }}>
-                {simulateFrance()}
-              </div>
-            </div>
-          </div>
-
-          <div style={{ borderTop: "1px solid var(--border)", paddingTop: "8px", marginTop: "8px", color: "var(--text)" }}>
-            <div><strong>Simulated: VPN/Proxy user</strong></div>
-            <div style={{ paddingLeft: "8px", marginTop: "4px" }}>
-              <div className="alert alert-error" style={{ fontSize: "0.8rem", padding: "0.5rem 0.65rem", margin: 0 }}>
-                {simulateVpn()}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
