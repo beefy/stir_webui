@@ -72,10 +72,13 @@ export async function detectLocation(): Promise<LocationInfo | null> {
 
 /**
  * Check if a location is banned or if the user is using a VPN/proxy.
+ *
+ * VPN/proxy filtering can be disabled by setting VITE_ENABLE_VPN_FILTERING=false.
  */
 export function isLocationBanned(location: LocationInfo): { banned: boolean; reason?: string } {
-  // Check for VPN/proxy usage
-  if (location.proxy) {
+  // Check for VPN/proxy usage (can be toggled via env var)
+  const vpnFilteringEnabled = import.meta.env.VITE_ENABLE_VPN_FILTERING !== "false";
+  if (vpnFilteringEnabled && location.proxy) {
     return { banned: true, reason: "VPNs and proxies are not allowed. Please disable your VPN or proxy and try again." };
   }
 
