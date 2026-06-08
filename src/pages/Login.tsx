@@ -3,10 +3,29 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useLocale } from "../contexts/LocaleContext";
 import { BANNED_LOCATIONS } from "../services/locationCheck";
+import LocationSelect from "../components/LocationSelect";
 
 type Mode = "signin" | "signup" | "forgot";
 
 // Location data for the signup form
+// Helper to convert uppercase code to camelCase key (e.g. "US" -> "Us", "AL" -> "Al")
+// Some country codes conflict with US state codes, so they use full names instead
+const COUNTRY_KEY_OVERRIDES: Record<string, string> = {
+  CA: "Canada",
+  CO: "Colombia",
+  DE: "Germany",
+  ID: "Indonesia",
+  IL: "Israel",
+  IN: "India",
+  AR: "Argentina",
+  MA: "Morocco",
+};
+
+const toCamelKey = (code: string) => {
+  if (COUNTRY_KEY_OVERRIDES[code]) return COUNTRY_KEY_OVERRIDES[code];
+  return code.charAt(0).toUpperCase() + code.slice(1).toLowerCase();
+};
+
 const US_STATES = [
   "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
   "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
@@ -16,7 +35,13 @@ const US_STATES = [
 ];
 
 const COUNTRIES = [
-  "US", "AU", "FR", "PT", "IT", "GR",
+  "US", "CA", "GB", "DE", "FR", "IT", "ES", "PT", "GR", "NL", "BE", "CH", "AT",
+  "SE", "NO", "DK", "FI", "IE", "PL", "CZ", "SK", "HU", "RO", "BG", "HR", "RS",
+  "AU", "NZ",
+  "JP", "KR", "SG", "MY", "TH", "VN", "PH", "ID", "IN",
+  "BR", "MX", "AR", "CL", "CO", "PE",
+  "ZA", "NG", "KE", "EG", "MA",
+  "IL", "TR", "AE", "SA",
 ];
 
 const BANNED_STATES_SET = new Set(BANNED_LOCATIONS.usStates);
@@ -212,45 +237,33 @@ export default function Login() {
                 <>
                   <div className="form-group">
                     <label htmlFor="locationCountry">{tr.locationQuestion}</label>
-                    <select
+                    <LocationSelect
                       id="locationCountry"
                       value={locationCountry}
-                      onChange={(e) => handleCountryChange(e.target.value)}
-                      className="location-select"
+                      onChange={handleCountryChange}
+                      placeholder={tr.locationSelectCountry}
                       required
-                    >
-                      <option value="">{tr.locationSelectCountry}</option>
-                      {COUNTRIES.map((code) => {
-                        const key = `location${code}` as keyof typeof tr;
-                        return (
-                          <option key={code} value={code}>
-                            {tr[key]}
-                          </option>
-                        );
+                      options={COUNTRIES.map((code) => {
+                        const key = `location${toCamelKey(code)}` as keyof typeof tr;
+                        return { value: code, label: tr[key] };
                       })}
-                    </select>
+                    />
                   </div>
 
                   {locationCountry === "US" && (
                     <div className="form-group">
                       <label htmlFor="locationState">{tr.locationSelectState}</label>
-                      <select
+                      <LocationSelect
                         id="locationState"
                         value={locationState}
-                        onChange={(e) => handleStateChange(e.target.value)}
-                        className="location-select"
+                        onChange={handleStateChange}
+                        placeholder={tr.locationSelectState}
                         required
-                      >
-                        <option value="">{tr.locationSelectState}</option>
-                        {US_STATES.map((code) => {
-                          const key = `location${code}` as keyof typeof tr;
-                          return (
-                            <option key={code} value={code}>
-                              {tr[key]}
-                            </option>
-                          );
+                        options={US_STATES.map((code) => {
+                          const key = `location${toCamelKey(code)}` as keyof typeof tr;
+                          return { value: code, label: tr[key] };
                         })}
-                      </select>
+                      />
                     </div>
                   )}
 
