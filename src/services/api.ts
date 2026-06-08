@@ -8,6 +8,7 @@ import type {
   ReportMessageRequest,
   SendMessageRequest,
   UnreadCountResponse,
+  ViewAccountResponse,
 } from "../types";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
@@ -116,4 +117,9 @@ export function getUnreadCount() {
 /** Get the karma score for the authenticated user (GET /karma_count). */
 export function getKarmaCount() {
   return request<KarmaResponse>("/karma_count");
+}
+
+/** Get all account data for the authenticated user (GET /view_account). */
+export function getViewAccount() {
+  return request<ViewAccountResponse>("/view_account");
 }

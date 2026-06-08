@@ -13,10 +13,12 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [resetSent, setResetSent] = useState(false);
+  const [agreeTerms, setAgreeTerms] = useState(false);
 
   const switchMode = (newMode: Mode) => {
     clearError();
     setResetSent(false);
+    setAgreeTerms(false);
     setMode(newMode);
   };
 
@@ -47,6 +49,7 @@ export default function Login() {
 
   const isSignin = mode === "signin";
   const isForgot = mode === "forgot";
+  const isSignup = mode === "signup";
 
   return (
     <div className="page login-page">
@@ -145,9 +148,27 @@ export default function Login() {
                 />
               </div>
 
+              {isSignup && (
+                <div className="form-group agree-terms-group">
+                  <label className="agree-terms-label">
+                    <input
+                      type="checkbox"
+                      checked={agreeTerms}
+                      onChange={(e) => setAgreeTerms(e.target.checked)}
+                      className="agree-terms-checkbox"
+                    />
+                    <span>
+                      {tr.agreeToTerms
+                        .replace("{privacyPolicy}", tr.privacyPolicy)
+                        .replace("{termsOfService}", tr.termsOfService)}
+                    </span>
+                  </label>
+                </div>
+              )}
+
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || (isSignup && !agreeTerms)}
                 className="btn-primary btn-full"
               >
                 {loading

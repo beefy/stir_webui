@@ -623,6 +623,29 @@ button[type="submit"]:disabled {
   text-decoration: underline;
 }
 
+/* Agree to terms checkbox */
+.agree-terms-group {
+  margin-bottom: 1rem;
+}
+
+.agree-terms-group label {
+  display: flex !important;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  line-height: 1.4;
+  font-weight: 400;
+  margin-bottom: 0;
+}
+
+.agree-terms-checkbox {
+  width: auto !important;
+  accent-color: var(--primary);
+  flex-shrink: 0;
+}
+
 /* Divider */
 .login-divider {
   display: flex;
@@ -834,6 +857,97 @@ button[type="submit"]:disabled {
   font-size: 0.85rem;
   color: var(--text-muted);
   font-weight: 500;
+}
+
+/* Settings action button (like btn-danger but blue) */
+.btn-settings {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1.25rem;
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: background 0.15s;
+}
+
+.btn-settings:hover:not(:disabled) {
+  background: var(--primary-hover);
+}
+
+.btn-settings:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Modal overlay */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  line-height: 1;
+  padding: 0.25rem;
+}
+
+.modal-close-btn:hover {
+  color: var(--text);
+}
+
+.modal-body {
+  overflow: auto;
+  padding: 1.25rem;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: "SF Mono", "Fira Code", "Fira Mono", Menlo, Consolas, monospace;
+  color: var(--text);
+  margin: 0;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--border);
 }
 
 /* Confirm delete */
