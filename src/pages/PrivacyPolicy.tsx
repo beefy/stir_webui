@@ -29,6 +29,7 @@ export default function PrivacyPolicy() {
           <li>{tr.privacyUseAuth}</li>
           <li>{tr.privacyUseDeliver}</li>
           <li>{tr.privacyUseDisplay}</li>
+          <li>{tr.privacyUseEmailUpdates}</li>
         </ul>
       </section>
 
@@ -55,6 +56,11 @@ export default function PrivacyPolicy() {
             firebase.google.com/support/privacy
           </a>.
         </p>
+      </section>
+
+      <section style={{ marginBottom: "1.5rem" }}>
+        <h2>{tr.privacyIpApi}</h2>
+        <p>{tr.privacyIpApiText}</p>
       </section>
 
       <section style={{ marginBottom: "1.5rem" }}>

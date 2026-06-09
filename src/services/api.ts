@@ -120,6 +120,6 @@ export function getKarmaCount() {
 }
 
 /** Get all account data for the authenticated user (GET /view_account). */
-export function getViewAccount() {
-  return request<ViewAccountResponse>("/view_account");
+export function getViewAccount(requestType: "view" | "export") {
+  return request<ViewAccountResponse>(`/view_account?request_type=${requestType}`);
 }

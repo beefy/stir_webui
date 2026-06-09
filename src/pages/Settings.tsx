@@ -45,11 +45,11 @@ export default function Settings() {
     }
   };
 
-  const fetchAccountData = async () => {
+  const fetchAccountData = async (requestType: "view" | "export") => {
     setDataLoading(true);
     setDataError(null);
     try {
-      const data = await getViewAccount();
+      const data = await getViewAccount(requestType);
       setAccountData(data);
       return data;
     } catch (err: unknown) {
@@ -63,14 +63,14 @@ export default function Settings() {
   };
 
   const handleViewData = async () => {
-    const data = await fetchAccountData();
+    const data = await fetchAccountData("view");
     if (data) {
       setShowModal(true);
     }
   };
 
   const handleExportData = async () => {
-    const data = await fetchAccountData();
+    const data = await fetchAccountData("export");
     if (data) {
       const blob = new Blob([JSON.stringify(data, null, 2)], {
         type: "application/json",
