@@ -8,7 +8,7 @@ export interface Pagination {
 export interface Message {
   message_id: string;
   send_user_id: string;
-  receive_user_id: string;
+  receive_user_id: string | null;
   message: string;
   sent_timestamp: string;
   seen_timestamp: string | null;
@@ -58,19 +58,10 @@ export interface KarmaResponse {
 }
 
 export interface ViewAccountResponse {
-  firebase: {
-    uid: string;
-    email: string | null;
-    email_verified: boolean | null;
-    display_name: string | null;
-    photo_url: string | null;
-    phone_number: string | null;
-    disabled: boolean | null;
-    creation_time: string | null;
-    last_sign_in_time: string | null;
-  };
+  firebase: Record<string, unknown>;
   user: Record<string, unknown> | null;
   messages: Record<string, unknown>[];
   blocked_by_me: Record<string, unknown>[];
   blocked_me: Record<string, unknown>[];
+  [key: string]: unknown;
 }

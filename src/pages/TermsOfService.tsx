@@ -52,6 +52,11 @@ export default function TermsOfService() {
       </section>
 
       <section style={{ marginBottom: "1.5rem" }}>
+        <h2>{tr.termsAiModeration}</h2>
+        <p>{tr.termsAiModerationText}</p>
+      </section>
+
+      <section style={{ marginBottom: "1.5rem" }}>
         <h2>{tr.termsRetention}</h2>
         <p>{tr.termsRetentionText}</p>
       </section>

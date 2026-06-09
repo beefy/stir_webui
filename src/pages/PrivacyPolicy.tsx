@@ -43,6 +43,11 @@ export default function PrivacyPolicy() {
       </section>
 
       <section style={{ marginBottom: "1.5rem" }}>
+        <h2>{tr.privacyAiModeration}</h2>
+        <p>{tr.privacyAiModerationText}</p>
+      </section>
+
+      <section style={{ marginBottom: "1.5rem" }}>
         <h2>{tr.privacyThirdParty}</h2>
         <p>
           {tr.privacyThirdPartyText}{" "}
